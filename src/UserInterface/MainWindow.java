@@ -26,7 +26,7 @@ public class MainWindow extends Application {
         });
         
         StackPane root = new StackPane();
-        GridDrawer grid = new GridDrawer ( new IntDimension (10,10));
+        GridDrawer grid = new GridDrawer ( new IntDimension (30,30));
         root.getChildren().add(grid);
 
  Scene scene = new Scene(root, 600, 600);

@@ -9,6 +9,7 @@ public class GridDrawer extends Grid{
 
 	public GridDrawer(IntDimension dimension) {
 		super(dimension);
+		startGridDrawer();
 	}
 	
 	public void startGridDrawer (){

@@ -29,6 +29,6 @@ public class Block extends Rectangle {
 	
 	private IntDimension gridPosition;
 	private int gridNumber;	
-	private static final IntDimension pixelDimensions = new IntDimension (50,50);
+	private static final IntDimension pixelDimensions = new IntDimension (15,15);
 
 }
