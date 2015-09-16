@@ -1,6 +1,8 @@
 package Utils;
 
-public class IntDimension {
+import java.io.Serializable;
+
+public class IntDimension implements Serializable{
 	
 
 	public int getX() {
@@ -26,4 +28,5 @@ public class IntDimension {
 		this.x = x;
 		this.y = y;
 	}
+
 }

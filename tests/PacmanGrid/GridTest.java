@@ -3,6 +3,8 @@ package PacmanGrid;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
+
 import org.junit.Test;
 
 import Utils.IntDimension;
@@ -15,9 +17,9 @@ public class GridTest {
 		
 		Block block = new Wall ();
 		unit.addBlock(block, new IntDimension (2,1));
-		Block[] blocks = unit.getBlocks();
+		ArrayList <Block> blocks = unit.getBlocks();
 		int blockPos = 2 * 10 - 10 + 1;
-		assertSame(block, blocks[blockPos]);
+		assertSame(block, blocks.get(blockPos));
 		assertEquals(block.getGridNumber(),blockPos);
 	}
 

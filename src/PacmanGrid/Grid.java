@@ -1,63 +1,80 @@
 package PacmanGrid;
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import Utils.IntDimension;
 import javafx.event.EventHandler;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
 
-public class Grid extends FlowPane {
-
+public class Grid extends Canvas implements Serializable {
+	
 	private IntDimension blockDimensions;
 	private int numberOfBlocks;
-	private Block[] blocks;
+	private ArrayList<Block> blocks;
 	
 	public Grid (IntDimension dimension){
+		
+		super (dimension.getX() * Block.getPixelDimensions().getX() ,dimension.getY() * Block.getPixelDimensions().getY());
 		blockDimensions = dimension;
 		numberOfBlocks = blockDimensions.getX() * blockDimensions.getY();
-		blocks = new Block [this.numberOfBlocks];
+		blocks = new ArrayList <Block> (numberOfBlocks);
 		
-		this.setPrefHeight(Block.getPixeldimensions().getY() * dimension.getY());
-		this.setPrefWidth(Block.getPixeldimensions().getX() * dimension.getX());
-		this.setMaxSize(this.getPrefWidth(), this.getPrefHeight());
-		this.setMinSize(this.getPrefWidth(), this.getPrefHeight());
+		GraphicsContext gc = this.getGraphicsContext2D();
+		gc.setFill(Color.RED);
+		gc.fillRect(0, 0, this.getWidth(), this.getHeight());
+		
+		this.setOnMouseClicked (new EventHandler<MouseEvent>(){
+			@Override
+			public void handle(MouseEvent event) {
+				System.out.println( event.getX() );
+			}
+		});
+		
+//		this.setPrefHeight(Block.getPixeldimensions().getY() * dimension.getY());
+//		this.setPrefWidth(Block.getPixeldimensions().getX() * dimension.getX());
+//		this.setMaxSize(this.getPrefWidth(), this.getPrefHeight());
+//		this.setMinSize(this.getPrefWidth(), this.getPrefHeight());
 	}
 	
 	public Block getBlock (IntDimension dimension){
-		return blocks[coordinateToGridNumber(dimension) ];
+		return blocks.get( coordinateToGridNumber(dimension) );
 	}
 	
-	public Block[] getBlocks (IntDimension startDimension, IntDimension endDimension){
+	public ArrayList<Block> getBlocks (IntDimension startDimension, IntDimension endDimension){
 		int startElement = coordinateToGridNumber (startDimension);
 		int endElement = coordinateToGridNumber (endDimension);
-		Block [] output = Arrays.copyOfRange(blocks, startElement, endElement);
-		return (output);
+		return (ArrayList<Block>) (blocks.subList(startElement, endElement));
 	}
 	
-	public Block[] getBlocks (){
+	public ArrayList <Block> getBlocks (){
 		return blocks;
 	}
 	
-	public void setBlocks (Block[] blocks,IntDimension dimension){
+	public void setBlocks (ArrayList <Block> blocks,IntDimension dimension){
 		this.blocks = blocks;
 		blockDimensions = dimension;
 		numberOfBlocks = blockDimensions.getX() * blockDimensions.getY();
-		blocks = new Block [this.numberOfBlocks];
 	}
 	
 	
 	public void addBlock (Block block, IntDimension position){
 		block.setGridPosition( position);
 		block.setGridNumber (coordinateToGridNumber (position) );
-		blocks[block.getGridNumber()] = block;
-		this.getChildren().add(block);
+		blocks.add(block.getGridNumber(), block);
+		//this.getChildren().add(block);
+		
 	}
-	
 
 	private int coordinateToGridNumber (IntDimension dimension){
 		int arrayElementNumber = dimension.getX() * blockDimensions.getX() - blockDimensions.getX() + dimension.getY() ;
 		return (arrayElementNumber);
 	}
+	
 	
 	
 	public IntDimension getBlockDimensions() {

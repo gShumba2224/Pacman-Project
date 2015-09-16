@@ -1,15 +1,25 @@
 package PacmanGrid;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import Utils.IntDimension;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
-public class GridDrawer extends Grid{
+public final class GridDrawer extends Grid{
+	
+	private boolean doMirror = false;
 
 	public GridDrawer(IntDimension dimension) {
 		super(dimension);
-		startGridDrawer();
 	}
 	
 	public void startGridDrawer (){
@@ -17,25 +27,51 @@ public class GridDrawer extends Grid{
 			for (int y = 1 ; y <= this.getBlockDimensions().getY() ; y ++){
 				final Block block = new Block ();
 				block.setFill(Color.BLUE);
-			    block.setOnMouseClicked(new EventHandler<MouseEvent>()
-			        {
-			            @Override
-			            public void handle(MouseEvent event) {
-			            	if (block.getFill() == Color.BLUE){
-			            		block.setFill(Color.GRAY);
-			            	}else{
-			            		block.setFill(Color.BLUE);
-			            	}
-			            }
-			        });
+				addEvents(block, this);
 				this.addBlock(block, new IntDimension (x,y-1));
 				System.out.println(x + " " + y);
 			}
 		}
 	}
 	
-	public void saveGrid (){
+	private void addEvents (Block block, Grid grid){
+		EventHandler<MouseEvent> clickDragEvent  = new EventHandler<MouseEvent>(){
+			@Override
+			public void handle(MouseEvent event) {
+            	if (block.getFill() == Color.BLUE){
+            		block.setFill(Color.GRAY);
+            	}else{
+            		block.setFill(Color.BLUE);
+            	}
+			}
+		};
+		block.setOnMouseClicked(clickDragEvent);
+	}
+	
+	public  void saveTemplate (String filePath){
 		
+		try {
+			FileOutputStream OutStream = new FileOutputStream(filePath);
+			ObjectOutputStream ObjectOutStream = new ObjectOutputStream(OutStream);
+			ObjectOutStream.writeObject(this);
+			ObjectOutStream.close();
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}
+	
+	public static Grid readTemplate (String filePath){
+		
+		Grid gridDrawer = null;
+		try{
+		FileInputStream OutStream = new FileInputStream(filePath);
+		ObjectInputStream ObjectOutStream = new ObjectInputStream(OutStream);
+		gridDrawer = (Grid) ObjectOutStream.readObject();
+		ObjectOutStream.close();
+		} catch (Exception e){
+			System.out.println(e);
+		}
+		return gridDrawer;
 	}
 	
 	public Grid templateToFinal (){
@@ -55,6 +91,7 @@ public class GridDrawer extends Grid{
 		}
 		return finalGrid;
 	}
+	
 	
 
 }
