@@ -6,12 +6,9 @@ import org.junit.Test;
 
 public class MoveTest {
 
-	Move unit = new Move ();
 	@Test
-	public void moveAgentTest() {
-		
-		
-		unit.moveAgent(new GenericAgent (), location)
+	public void test() {
+		fail("Not yet implemented");
 	}
 
 }

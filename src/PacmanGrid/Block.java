@@ -2,6 +2,7 @@ package PacmanGrid;
 
 import java.io.Serializable;
 
+import Agents.GenericAgent;
 import Utils.IntDimension;
 import javafx.scene.shape.Rectangle;
 
@@ -29,8 +30,17 @@ public class Block extends Rectangle implements Serializable {
 		return pixelDimensions;
 	}
 	
+	public GenericAgent getOccupiedBy() {
+		return occupiedBy;
+	}
+
+	public void setOccupiedBy(GenericAgent occupiedBy) {
+		this.occupiedBy = occupiedBy;
+	}
+
+
 	private IntDimension gridPosition;
 	private int gridNumber;	
-	private static final IntDimension pixelDimensions = new IntDimension (20,20);
-
+	private GenericAgent occupiedBy = null;
+	private static final IntDimension pixelDimensions = new IntDimension (200,200);
 }

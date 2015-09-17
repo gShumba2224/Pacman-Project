@@ -4,13 +4,22 @@ import javafx.scene.paint.Color;
 
 public class Road  extends Block{
 	
-	private Pill pill = new Pill (Pill.STANDARDPILL);
-	
+	private int pill = Pill.NONE;
+
 	public Road (){
 		super ();
-		this.setStrokeWidth(5.0);
-		this.setStroke(Color.BLACK);
-		this.setFill(Color.GRAY);
+	}
+	
+	public Road (int pillType){
+		this.pill = pillType;
+	}
+	
+	public int getPill() {
+		return pill;
+	}
+
+	public void setPill(int pill) {
+		this.pill = pill;
 	}
 
 }

@@ -1,97 +1,66 @@
 package PacmanGrid;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+
 import Utils.IntDimension;
 import javafx.event.EventHandler;
+import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
-public final class GridDrawer extends Grid{
+public final  class GridDrawer {
 	
-	private boolean doMirror = false;
+	private GridDrawer (){
+		
+	}
 
-	public GridDrawer(IntDimension dimension) {
-		super(dimension);
-	}
-	
-	public void startGridDrawer (){
-		for (int x = 1; x <= this.getBlockDimensions().getX() ; x++ ){
-			for (int y = 1 ; y <= this.getBlockDimensions().getY() ; y ++){
-				final Block block = new Block ();
-				block.setFill(Color.BLUE);
-				addEvents(block, this);
-				this.addBlock(block, new IntDimension (x,y-1));
-				System.out.println(x + " " + y);
-			}
-		}
-	}
-	
-	private void addEvents (Block block, Grid grid){
-		EventHandler<MouseEvent> clickDragEvent  = new EventHandler<MouseEvent>(){
-			@Override
-			public void handle(MouseEvent event) {
-            	if (block.getFill() == Color.BLUE){
-            		block.setFill(Color.GRAY);
-            	}else{
-            		block.setFill(Color.BLUE);
-            	}
-			}
-		};
-		block.setOnMouseClicked(clickDragEvent);
-	}
-	
-	public  void saveTemplate (String filePath){
+	public static Grid drawFromImage (File imagePath) throws IOException{
 		
-		try {
-			FileOutputStream OutStream = new FileOutputStream(filePath);
-			ObjectOutputStream ObjectOutStream = new ObjectOutputStream(OutStream);
-			ObjectOutStream.writeObject(this);
-			ObjectOutStream.close();
-		} catch (Exception e) {
-			System.out.println(e);
-		}
-	}
-	
-	public static Grid readTemplate (String filePath){
+		BufferedImage image = ImageIO.read(imagePath);
+		//PixelReader pixelReader = image.getPixelReader();
+		IntDimension newGridDimensions = new IntDimension ((int)image.getWidth()/Block.getPixelDimensions().getX(),
+														(int)image.getHeight()/Block.getPixelDimensions().getY());
+		Grid newGrid = new Grid (newGridDimensions);
+		IntDimension gridPos = new IntDimension (0,0);
 		
-		Grid gridDrawer = null;
-		try{
-		FileInputStream OutStream = new FileInputStream(filePath);
-		ObjectInputStream ObjectOutStream = new ObjectInputStream(OutStream);
-		gridDrawer = (Grid) ObjectOutStream.readObject();
-		ObjectOutStream.close();
-		} catch (Exception e){
-			System.out.println(e);
-		}
-		return gridDrawer;
-	}
-	
-	public Grid templateToFinal (){
-		
-		Grid finalGrid = new Grid (this.getBlockDimensions());
-		Block newBlock;
-		for (Block block : this.getBlocks()){
-			if (block.getFill() == Color.BLUE){
-				newBlock = new Wall ();
-				newBlock.setGridNumber(block.getGridNumber());
-				newBlock.setGridPosition(block.getGridPosition());
-			}else{
-				newBlock = new Road ();
-				newBlock.setGridNumber(block.getGridNumber());
-				newBlock.setGridPosition(block.getGridPosition());
+		for (int row = 0; row < (int)image.getWidth() ; row = row + Block.getPixelDimensions().getX() ){
+			
+			for (int column = 0; column < (int)image.getHeight() ; column = column + Block.getPixelDimensions().getY()){
+				int pixels[] = new int[3];
+				image.getData().getPixel(0, 200, pixels);
+				
+				if (gridPos.getY() > newGridDimensions.getY()-1) gridPos.setY(0);
+				
+				if (pixels[0] > 0 ){ //road with grape
+					newGrid.addBlock(new Road (new Pill (Pill.GRAPE)),gridPos);
+					
+				} else if (pixels[1] > 0){ // road with power pill
+					newGrid.addBlock(new Road (new Pill (Pill.POWERPILL)), gridPos);
+					
+				}else if (pixels[2] > 0){ //road with standard food
+					newGrid.addBlock (new Road (new Pill (Pill.STANDARDPILL)), gridPos);
+					
+				}else {   //wall
+					newGrid.addBlock (new Wall (), gridPos);
+				}
+				
+				gridPos.setY(gridPos.getY() + 1);
 			}
+			gridPos.setX(gridPos.getX() + 1);
 		}
-		return finalGrid;
+		return newGrid;
 	}
-	
-	
-
 }

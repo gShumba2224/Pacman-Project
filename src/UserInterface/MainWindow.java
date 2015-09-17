@@ -16,8 +16,8 @@ public class MainWindow extends Application {
 	private IntDimension windowSize ;
     @Override
     public void start(Stage primaryStage) {
-    	final GridDrawer grid = new GridDrawer ( new IntDimension (20,20));
-    	grid.startGridDrawer();
+    	final GridDrawer grid = new GridDrawer ( new IntDimension (3,3));
+    	//grid.startGridDrawer();
         
     	Button saveButton = new Button();
         saveButton.setText("Save Grid");
@@ -51,7 +51,7 @@ public class MainWindow extends Application {
         root.getChildren().add(grid);
 
 
- Scene scene = new Scene(root, 600, 600);
+        Scene scene = new Scene(root, 600, 600);
 
         primaryStage.setTitle("Hello World!");
         primaryStage.setScene(scene);
