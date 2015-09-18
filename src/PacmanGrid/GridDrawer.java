@@ -44,9 +44,9 @@ public final  class GridDrawer {
 		Grid newGrid = new Grid (newGridDimensions , blockPixelDimensions);
 		IntDimension gridPos = new IntDimension (0,0);
 		
-		for (int row = 0; row < (int)image.getWidth() ; row = row + Block.getPixelDimensions().getX() ){
+		for (int row = 0; row < (int)image.getWidth() ; row = row + blockPixelDimensions.getX() ){
 			
-			for (int column = 0; column < (int)image.getHeight() ; column = column + Block.getPixelDimensions().getY()){
+			for (int column = 0; column < (int)image.getHeight() ; column = column + blockPixelDimensions.getY()){
 				int pixels[] = new int[3];
 				image.getData().getPixel(row, column, pixels);
 				

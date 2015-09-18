@@ -7,15 +7,17 @@ import Agents.GenericAgent;
 import Agents.Ghost;
 import Agents.Pacman;
 import Game.Game;
+import PacmanGrid.Block;
 import PacmanGrid.Grid;
 import PacmanGrid.Pill;
 import PacmanGrid.Road;
 import Utils.IntDimension;
+import javafx.scene.image.ImageView;
 
 class Move implements Action{
 	
-	private  int DEFAULTSPEED = 1000;
-	private   Timer timer = new Timer ();
+	private int DEFAULTSPEED = 1000;
+	private Timer timer = new Timer ();
 	protected Move (){
 	}
 	
@@ -28,10 +30,8 @@ class Move implements Action{
 			IntDimension oldLocation = agent.getLocation();
 			
 			if (agent instanceof Pacman){
-				System.out.println("instance mate");
 				if (road.getOccupiedBy() != null && agent.isScared() == true){
 					agent.setLives(agent.getLives() - 1);
-					System.out.println("hit it moit");
 				}else if ( road.getOccupiedBy() != null && agent.isScared() == false){
 					road.getOccupiedBy().setLives(agent.getLives() - 1);
 				}else if (road.getOccupiedBy() == null && road.getPill() != Pill.NONE){
@@ -51,8 +51,7 @@ class Move implements Action{
 				}
 			}
 			agent.setLocation(road.getGridPosition());
-			countDown (agent.getSpeed());
-			animateAgent(agent, oldLocation, location);
+			animateAgent(agent, road);
 			road.setOccupiedBy(agent);
 			game.getGrid().getBlock(oldLocation).setOccupiedBy(null);
 			return true;
@@ -61,18 +60,23 @@ class Move implements Action{
 		}
 	}
 	
-	private void animateAgent (GenericAgent agent, IntDimension fromLocation, IntDimension toLocation){
-	}
-	
-	private  void countDown (int agentSpeed){
+	private void animateAgent (GenericAgent agent, Block toBlock){
+		IntDimension toScreenLocation = new IntDimension (toBlock.getPixelDimensions().X * toBlock.getGridPosition().X,
+										toBlock.getPixelDimensions().Y * toBlock.getGridPosition().Y);
+		
+		IntDimension currentScreenLocation = new IntDimension (agent.getLocation().X * toBlock.getPixelDimensions().X,
+											agent.getLocation().Y * toBlock.getPixelDimensions().Y);
+		
+		IntDimension distance = new IntDimension (toScreenLocation.X - currentScreenLocation.X,
+								toScreenLocation.Y - currentScreenLocation.Y);
 		
 	    timer.scheduleAtFixedRate(new TimerTask() {
-	    	int count = 0;
+	    	@Override
 	        public void run() {
-	        	System.out.println("secs  " + count);
-	        	count ++;
+	    		agent.getGraphic().setTranslateX(agent.getGraphic().getTranslateX() + distance.X);
+	    		agent.getGraphic().setTranslateY(agent.getGraphic().getTranslateY() + distance.Y);
 	        }
-	    }, 0, DEFAULTSPEED/agentSpeed);
+	    }, 0, DEFAULTSPEED/agent.getSpeed());
 	}
 
 	@Override

@@ -50,6 +50,9 @@ public class Game {
 	private GenericAgent pacman;
 	private ArrayList<GenericAgent> ghosts;
 	private Grid grid;
+	public final static int SINGLE_PLAYER = 0;
+	public final static int NO_PLAYER = 1;
+	private int gameMode = 0;
 	
 	public Game(){
 	}

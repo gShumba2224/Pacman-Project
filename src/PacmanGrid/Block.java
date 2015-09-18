@@ -33,8 +33,12 @@ public class Block extends Rectangle implements Serializable {
 		this.gridNumber = gridNumber;
 	}
 	
-	public static IntDimension getPixelDimensions() {
+	public  IntDimension getPixelDimensions() {
 		return pixelDimensions;
+	}
+	
+	public  void setPixelDimensions(IntDimension pixelDimensions) {
+		 this.pixelDimensions = pixelDimensions;
 	}
 	
 	public GenericAgent getOccupiedBy() {
@@ -49,5 +53,5 @@ public class Block extends Rectangle implements Serializable {
 	private IntDimension gridPosition;
 	private int gridNumber;	
 	private GenericAgent occupiedBy = null;
-	private static final IntDimension pixelDimensions = new IntDimension (30,30);
+	private static  IntDimension pixelDimensions = new IntDimension (30,30);
 }

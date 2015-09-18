@@ -38,7 +38,7 @@ public class MainWindow extends Application {
         primaryStage.setTitle("Hello World!");
         primaryStage.setScene(scene);
         primaryStage.show();
-        //primaryStage.setResizable(false);
+        
     }
  public static void main(String[] args) {
         launch(args);

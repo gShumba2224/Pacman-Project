@@ -29,20 +29,8 @@ public class Grid  implements Serializable {
 		blocks = new ArrayList <Block> (numberOfBlocks);
 		blockPixelDimensions = blockSize;
 	}
-	
-	public Canvas getCanvas (){
-		return canvas;
-	}
-	
-	public void  set (Canvas canvas){
-		 this.canvas = canvas;
-	}
-	
-	public void setBackgroundImage (Image image){
-		GraphicsContext gc = canvas.getGraphicsContext2D();
-		gc.drawImage(image, 0, 0);
-	}
-	
+
+
 	public void drawGrid (){
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		gc.setFill(Color.RED);
@@ -103,5 +91,27 @@ public class Grid  implements Serializable {
 
 	public int getNumberOfBlocks() {
 		return numberOfBlocks;
+	}
+	
+	
+	public Canvas getCanvas (){
+		return canvas;
+	}
+	
+	public void  set (Canvas canvas){
+		 this.canvas = canvas;
+	}
+	
+	public void setBackgroundImage (Image image){
+		GraphicsContext gc = canvas.getGraphicsContext2D();
+		gc.drawImage(image, 0, 0);
+	}
+	
+	public IntDimension getBlockPixelDimensions() {
+		return blockPixelDimensions;
+	}
+
+	public void setBlockPixelDimensions(IntDimension blockPixelDimensions) {
+		this.blockPixelDimensions = blockPixelDimensions;
 	}
 }

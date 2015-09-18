@@ -6,27 +6,27 @@ public class IntDimension implements Serializable{
 	
 
 	public int getX() {
-		return x;
+		return X;
 	}
 
 	public void setX(int x) {
-		this.x = x;
+		this.X = x;
 	}
 
 	public int getY() {
-		return y;
+		return Y;
 	}
 
 	public void setY(int y) {
-		this.y = y;
+		this.Y = y;
 	}
 
-	private int x;
-	private int y;
-	
 	public IntDimension (int x, int y){
-		this.x = x;
-		this.y = y;
+		this.X = x;
+		this.Y = y;
 	}
+
+	public int X;
+	public int Y;
 
 }
