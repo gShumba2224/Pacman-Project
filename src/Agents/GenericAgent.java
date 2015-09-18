@@ -3,10 +3,17 @@ package Agents;
 import java.io.Serializable;
 
 import Utils.IntDimension;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class GenericAgent implements Serializable {
 
+	public GenericAgent (Image image){
+		graphic = new ImageView (image);
+	}
+	public GenericAgent (){
+	}
+	
 	public IntDimension getLocation() {
 		return location;
 	}
