@@ -38,6 +38,13 @@ public class Game {
 	public void setGrid(Grid grid) {
 		this.grid = grid;
 	}
+	
+	public void end(){
+	}
+	public void reset (){
+	}
+	public void restart (){
+	}
 
 	private int Score;
 	private GenericAgent pacman;
@@ -45,6 +52,5 @@ public class Game {
 	private Grid grid;
 	
 	public Game(){
-		
 	}
 }

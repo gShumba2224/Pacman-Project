@@ -42,6 +42,6 @@ public class GenericAgent implements Serializable {
 	private IntDimension location;
 	private ImageView graphic;
 	private boolean isScared;
-	private int lives;
-	private int speed;
+	private int lives = 1;
+	private int speed = 1;
 }

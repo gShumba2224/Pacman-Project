@@ -11,6 +11,13 @@ public class Block extends Rectangle implements Serializable {
 	public Block (){
 		this.setHeight(pixelDimensions.getY());
 		this.setWidth(pixelDimensions.getX());
+		this.gridPosition= new IntDimension (0,0);
+	}
+	
+	public Block (IntDimension gridPosition){
+		this.setHeight(pixelDimensions.getY());
+		this.setWidth(pixelDimensions.getX());
+		this.gridPosition= gridPosition;
 	}
 
 	public IntDimension getGridPosition() {
@@ -42,5 +49,5 @@ public class Block extends Rectangle implements Serializable {
 	private IntDimension gridPosition;
 	private int gridNumber;	
 	private GenericAgent occupiedBy = null;
-	private static final IntDimension pixelDimensions = new IntDimension (200,200);
+	private static final IntDimension pixelDimensions = new IntDimension (30,30);
 }

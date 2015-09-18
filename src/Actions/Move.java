@@ -4,6 +4,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import Agents.GenericAgent;
+import Agents.Ghost;
 import Agents.Pacman;
 import Game.Game;
 import PacmanGrid.Grid;
@@ -22,23 +23,38 @@ class Move implements Action{
 		
 		IntDimension location = (IntDimension)parameters[0];
 		Grid grid = game.getGrid();
-		
 		try{
 			Road road = (Road)grid.getBlock(location);
 			IntDimension oldLocation = agent.getLocation();
+			
 			if (agent instanceof Pacman){
+				System.out.println("instance mate");
 				if (road.getOccupiedBy() != null && agent.isScared() == true){
 					agent.setLives(agent.getLives() - 1);
-				}else if (road.getPill() != Pill.NONE){
+					System.out.println("hit it moit");
+				}else if ( road.getOccupiedBy() != null && agent.isScared() == false){
+					road.getOccupiedBy().setLives(agent.getLives() - 1);
+				}else if (road.getOccupiedBy() == null && road.getPill() != Pill.NONE){
 					game.setScore(game.getScore() + road.getPill());
 					road.setPill(Pill.NONE);
 				}
 			} else {
-				agent.
+				if (road.getOccupiedBy() instanceof Pacman && agent.isScared() == false){
+					Pacman pacman = (Pacman)road.getOccupiedBy();
+					pacman.setLives(pacman.getLives()-1);
+					if (pacman.getLives() < 0){game.end();}
+					else {game.restart();}
+				} else if (road.getOccupiedBy() instanceof Pacman && agent.isScared() == true){
+					agent.setLives(agent.getLives() - 1);
+				} else if (road.getOccupiedBy() instanceof Ghost){
+					return false;
+				}
 			}
 			agent.setLocation(road.getGridPosition());
 			countDown (agent.getSpeed());
 			animateAgent(agent, oldLocation, location);
+			road.setOccupiedBy(agent);
+			game.getGrid().getBlock(oldLocation).setOccupiedBy(null);
 			return true;
 		}catch (ClassCastException e){
 			return false;

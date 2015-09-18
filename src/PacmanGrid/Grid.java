@@ -13,48 +13,57 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
 
-public class Grid extends Canvas implements Serializable {
+public class Grid  implements Serializable {
 	
 	private IntDimension blockDimensions;
 	private int numberOfBlocks;
 	private ArrayList<Block> blocks;
+	private IntDimension blockPixelDimensions;
+	private Canvas canvas;
 	
-	public Grid (IntDimension dimension){
+	public Grid (IntDimension dimension , IntDimension blockSize){
 		
-		super (dimension.getX() * Block.getPixelDimensions().getX() ,dimension.getY() * Block.getPixelDimensions().getY());
+		canvas = new Canvas (dimension.getX() * blockSize.getX() ,dimension.getY() * blockSize.getY());
 		blockDimensions = dimension;
 		numberOfBlocks = blockDimensions.getX() * blockDimensions.getY();
 		blocks = new ArrayList <Block> (numberOfBlocks);
-		
-//		GraphicsContext gc = this.getGraphicsContext2D();
-//		gc.setFill(Color.RED);
-//		gc.fillRect(0, 0, this.getWidth(), this.getHeight());
-//		int x = 0;
-//		int y = 0;
-//		int count = 0;
-//		for (int row = 0; row < 600; row = row + 200 ){
-//			
-//			for (int column = 0; column < 600 ; column = column + 200){
-//				
-//				if (y > 2) y = 0;
-//				gc.setFill(Color.BLUE);
-//				gc.setStroke(Color.BLACK);
-//				gc.setLineWidth(1.0);
-//				int num = x * 3 + y ;
-//				gc.fillText(String.valueOf(coordinateToGridNumber(new IntDimension (x,y))), row + 100, column + 100);
-//				gc.strokeRect(row, column, Block.getPixelDimensions().getX() , Block.getPixelDimensions().getY());
-//				y++;
-//				count ++;
-//			}
-//			x ++;
-//			
-//		}
-//		System.out.println(count + "count");
-		
-//		this.setPrefHeight(Block.getPixeldimensions().getY() * dimension.getY());
-//		this.setPrefWidth(Block.getPixeldimensions().getX() * dimension.getX());
-//		this.setMaxSize(this.getPrefWidth(), this.getPrefHeight());
-//		this.setMinSize(this.getPrefWidth(), this.getPrefHeight());
+		blockPixelDimensions = blockSize;
+	}
+	
+	public Canvas getCanvas (){
+		return canvas;
+	}
+	
+	public void  set (Canvas canvas){
+		 this.canvas = canvas;
+	}
+	
+	public void setBackgroundImage (Image image){
+		GraphicsContext gc = canvas.getGraphicsContext2D();
+		gc.drawImage(image, 0, 0);
+	}
+	
+	public void drawGrid (){
+		GraphicsContext gc = canvas.getGraphicsContext2D();
+		gc.setFill(Color.RED);
+		gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+		int x = 0;
+		int y = 0;
+		int count = 0;
+		for (int row = 0; row < 600; row = row + 200 ){
+			for (int column = 0; column < 600 ; column = column + 200){
+				if (y > 2) y = 0;
+				gc.setFill(Color.BLUE);
+				gc.setStroke(Color.BLACK);
+				gc.setLineWidth(1.0);
+				int num = x * 3 + y ;
+				gc.fillText(String.valueOf(coordinateToGridNumber(new IntDimension (x,y))), row + 100, column + 100);
+				gc.strokeRect(row, column, blockPixelDimensions.getX() , blockPixelDimensions.getY());
+				y++;
+				count ++;
+			}
+			x ++;
+		}
 	}
 	
 	public Block getBlock (IntDimension dimension){
@@ -77,27 +86,16 @@ public class Grid extends Canvas implements Serializable {
 		numberOfBlocks = blockDimensions.getX() * blockDimensions.getY();
 	}
 	
-	
 	public void addBlock (Block block, IntDimension position){
-		block.setGridPosition( position);
+		block.setGridPosition( new IntDimension (position.getX(), position.getY()));
 		block.setGridNumber (coordinateToGridNumber (position) );
 		blocks.add(block.getGridNumber(), block);
-		//this.getChildren().add(block);
-		
 	}
 
 	protected int coordinateToGridNumber (IntDimension dimension){
 		int arrayElementNumber = dimension.getX() * blockDimensions.getX() + dimension.getY() ;
-//		int arrayElementNumber;
-//		if (dimension.getX() == 0&& dimension.getY() == 0){
-//			arrayElementNumber = 0;
-//		}else{
-//			arrayElementNumber = dimension.getX() * blockDimensions.getX() - blockDimensions.getX() + dimension.getY() ;
-//		}
 		return (arrayElementNumber);
 	}
-	
-	
 	
 	public IntDimension getBlockDimensions() {
 		return blockDimensions;
