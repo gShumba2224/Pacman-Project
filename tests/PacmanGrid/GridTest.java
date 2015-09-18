@@ -19,7 +19,7 @@ public class GridTest {
 	@Before
 	public void generateGrid (){
 		try {
-			unit = GridDrawer.drawFromImage(new File ("C:\\Users\\GMAN\\Desktop\\Temp Stuff\\testGrid.jpg"));
+			unit = GridDrawer.drawFromImage(new File ("C:\\Users\\GMAN\\Desktop\\Temp Stuff\\testGrid.jpg"),  new IntDimension (200,200));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -27,9 +27,10 @@ public class GridTest {
 	
 	@Test
 	public void addBlockTest() {
-		unit = new Grid (new IntDimension (3,3), new IntDimension (200,200));
-		unit.addBlock(new Block (), new IntDimension (0,0));
-		unit.addBlock(new Block (), new IntDimension (0,1));
+		IntDimension blockDimensions = new IntDimension (200,200);
+		unit = new Grid (new IntDimension (3,3), blockDimensions);
+		unit.addBlock(new Block (blockDimensions), new IntDimension (0,0));
+		unit.addBlock(new Block (blockDimensions), new IntDimension (0,1));
 		
 		IntDimension b1 = new IntDimension (0,0);
 		assertEquals( unit.getBlock(b1).getGridNumber(), 0);
@@ -50,7 +51,6 @@ public class GridTest {
 		block = unit.getBlock(b1);
 		assertEquals(block.getGridNumber(), 0);
 	
-		
 		block = unit.getBlock(new IntDimension (0,1));
 		assertEquals(block.getGridNumber(), 1);
 		System.out.println("sdsdfds  " + block.getGridPosition().getX());

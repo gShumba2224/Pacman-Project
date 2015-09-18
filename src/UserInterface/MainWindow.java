@@ -21,10 +21,9 @@ public class MainWindow extends Application {
     @Override
     public void start(Stage primaryStage) {
     	
-    	GridDrawer.setBlockPixelDimensions(new IntDimension (50,50));
     	Grid grid = null;;
 		try {
-			grid = GridDrawer.drawFromImage(new File ("C:\\Users\\GMAN\\Desktop\\Temp Stuff\\grid01.jpg"));
+			grid = GridDrawer.drawFromImage(new File ("C:\\Users\\GMAN\\Desktop\\Temp Stuff\\grid01.jpg"),new IntDimension (50,50));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

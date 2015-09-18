@@ -23,20 +23,10 @@ import javafx.scene.paint.Color;
 
 public final  class GridDrawer {
 	
-	private static IntDimension blockPixelDimensions = new IntDimension (200,200);
 	private GridDrawer (){
 	}
 
-	public static IntDimension getBlockPixelDimensions() {
-		return blockPixelDimensions;
-	}
-
-	public static void setBlockPixelDimensions(IntDimension blockPixelDimensions) {
-		GridDrawer.blockPixelDimensions = blockPixelDimensions;
-	}
-
-
-	public static Grid drawFromImage (File imagePath) throws IOException{
+	public static Grid drawFromImage (File imagePath,IntDimension blockPixelDimensions) throws IOException{
 		
 		BufferedImage image = ImageIO.read(imagePath);
 		IntDimension newGridDimensions = new IntDimension ((int)image.getWidth()/blockPixelDimensions.getX(),
@@ -51,19 +41,19 @@ public final  class GridDrawer {
 				image.getData().getPixel(row, column, pixels);
 				
 				if ( pixels[0] > 0 && pixels[1] > 0 && pixels[2] > 0){// no pill
-					newGrid.addBlock(new Road (Pill.NONE),gridPos);
+					newGrid.addBlock(new Road (blockPixelDimensions,Pill.NONE),gridPos);
 				}else{
 					if (pixels[0] > 0 ){ //road with grape
-						newGrid.addBlock(new Road (Pill.GRAPE),gridPos);
+						newGrid.addBlock(new Road (blockPixelDimensions,Pill.GRAPE),gridPos);
 					
 					} else if (pixels[1] > 0){ // road with power pill
-						newGrid.addBlock(new Road (Pill.POWERPILL), gridPos);
+						newGrid.addBlock(new Road (blockPixelDimensions,Pill.POWERPILL), gridPos);
 					
 					}else if (pixels[2] > 0){ //road with standard food
-						newGrid.addBlock (new Road (Pill.STANDARDPILL), gridPos);
+						newGrid.addBlock (new Road (blockPixelDimensions,Pill.STANDARDPILL), gridPos);
 					
 					}else {   //wall
-						newGrid.addBlock (new Wall (), gridPos);
+						newGrid.addBlock (new Wall (blockPixelDimensions), gridPos);
 					}
 				}
 				gridPos.setY(gridPos.getY() + 1);

@@ -18,7 +18,7 @@ public class GridDrawerTest{
 	public void drawFromImageTest (){
 		Grid grid = null;
 		try {
-			 grid = GridDrawer.drawFromImage(new File ("C:\\Users\\GMAN\\Desktop\\Temp Stuff\\testGrid.jpg"));
+			 grid = GridDrawer.drawFromImage(new File ("C:\\Users\\GMAN\\Desktop\\Temp Stuff\\testGrid.jpg"), new IntDimension (200,200));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

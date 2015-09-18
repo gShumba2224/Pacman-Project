@@ -70,13 +70,12 @@ class Move implements Action{
 		IntDimension distance = new IntDimension (toScreenLocation.X - currentScreenLocation.X,
 								toScreenLocation.Y - currentScreenLocation.Y);
 		
-	    timer.scheduleAtFixedRate(new TimerTask() {
-	    	@Override
-	        public void run() {
-	    		agent.getGraphic().setTranslateX(agent.getGraphic().getTranslateX() + distance.X);
-	    		agent.getGraphic().setTranslateY(agent.getGraphic().getTranslateY() + distance.Y);
-	        }
-	    }, 0, DEFAULTSPEED/agent.getSpeed());
+//	    timer.scheduleAtFixedRate(new TimerTask() {
+//	        public void run() {
+//	        }
+//	    }, 0, DEFAULTSPEED/agent.getSpeed());
+		agent.getGraphic().setTranslateX(toScreenLocation.X);
+		agent.getGraphic().setTranslateY(toScreenLocation.Y);
 	}
 
 	@Override

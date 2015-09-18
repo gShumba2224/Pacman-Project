@@ -6,18 +6,16 @@ import Agents.GenericAgent;
 import Utils.IntDimension;
 import javafx.scene.shape.Rectangle;
 
-public class Block extends Rectangle implements Serializable {
+public class Block implements Serializable {
 	
-	public Block (){
-		this.setHeight(pixelDimensions.getY());
-		this.setWidth(pixelDimensions.getX());
+	public Block (IntDimension pixelDimensions){
 		this.gridPosition= new IntDimension (0,0);
+		this.pixelDimensions = pixelDimensions;
 	}
 	
-	public Block (IntDimension gridPosition){
-		this.setHeight(pixelDimensions.getY());
-		this.setWidth(pixelDimensions.getX());
+	public Block (IntDimension pixelDimensions, IntDimension gridPosition){
 		this.gridPosition= gridPosition;
+		this.pixelDimensions = pixelDimensions;
 	}
 
 	public IntDimension getGridPosition() {
@@ -48,10 +46,8 @@ public class Block extends Rectangle implements Serializable {
 	public void setOccupiedBy(GenericAgent occupiedBy) {
 		this.occupiedBy = occupiedBy;
 	}
-
-
 	private IntDimension gridPosition;
 	private int gridNumber;	
 	private GenericAgent occupiedBy = null;
-	private static  IntDimension pixelDimensions = new IntDimension (30,30);
+	private IntDimension pixelDimensions ;
 }

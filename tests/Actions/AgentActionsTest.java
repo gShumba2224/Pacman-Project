@@ -22,22 +22,25 @@ public class AgentActionsTest {
 		Pacman pacman = new Pacman ();
 		Game game = new Game ();
 		try {
-			game.setGrid(GridDrawer.drawFromImage(new File ("C:\\Users\\GMAN\\Desktop\\Temp Stuff\\testGrid.jpg")));
+			game.setGrid(GridDrawer.drawFromImage(new File ("C:\\Users\\GMAN\\Desktop\\Temp Stuff\\testGrid.jpg"),  new IntDimension (200,200)));
 		} catch (IOException e) {e.printStackTrace();}
 		
 		pacman.setLocation(new IntDimension (0,0));
 		ghost.setLocation(new IntDimension (0,0));
 		
+		// Move pacman to normal pill
 		AgentActions.moveAgent(pacman, game, new IntDimension (0,1));
 		assertEquals(0, pacman.getLocation().getX()); 
 		assertEquals(1, pacman.getLocation().getY());
 		assertEquals(game.getScore(),Pill.STANDARDPILL);
 		
+		//Move pacman to powerpill
 		AgentActions.moveAgent(pacman, game, new IntDimension (1,1));
 		assertEquals(1, pacman.getLocation().getX()); 
 		assertEquals(1, pacman.getLocation().getY());
 		assertEquals(game.getScore(), Pill.POWERPILL + Pill.STANDARDPILL);
 		
+		//Move pacman to grape
 		AgentActions.moveAgent(pacman, game, new IntDimension (2,1));
 		assertEquals(2, pacman.getLocation().getX()); 
 		assertEquals(1, pacman.getLocation().getY());
