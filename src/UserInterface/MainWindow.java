@@ -48,15 +48,26 @@ public class MainWindow extends Application {
 		   		if (keyEvent.getCode() == KeyCode.RIGHT) {
 		   			newLocation.X = newLocation.X + 1;
 		   			AgentActions.moveAgent(game.getPacman(), game, newLocation );
+		   			game.getPacman().getGraphic().setScaleX(1);
+		   			game.getPacman().getGraphic().setRotate(0);
+		   			
 		   		}else if ( keyEvent.getCode() == KeyCode.LEFT ){
 		   			newLocation.X = newLocation.X -1;
 		   			AgentActions.moveAgent(game.getPacman(), game, newLocation );
+		   			game.getPacman().getGraphic().setScaleX(-1);
+		   			game.getPacman().getGraphic().setRotate(0);
+		   			
 		   		}else if ( keyEvent.getCode() == KeyCode.UP ){
 		   			newLocation.Y = newLocation.Y -1;
 		   			AgentActions.moveAgent(game.getPacman(), game, newLocation );
+		   			game.getPacman().getGraphic().setScaleX(1);
+		   			game.getPacman().getGraphic().setRotate(-90);
+		   				
 		   		}else if ( keyEvent.getCode() == KeyCode.DOWN ){
 		   			newLocation.Y = newLocation.Y + 1;
 		   			AgentActions.moveAgent(game.getPacman(), game, newLocation );
+		   			game.getPacman().getGraphic().setScaleX(1);
+		   			game.getPacman().getGraphic().setRotate(90);
 		   		}
 		   		keyEvent.consume();
 		   	}
