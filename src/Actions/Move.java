@@ -36,7 +36,8 @@ class Move implements Action{
 					road.getOccupiedBy().setLives(agent.getLives() - 1);
 				}else if (road.getOccupiedBy() == null && road.getPill() != Pill.NONE){
 					game.setScore(game.getScore() + road.getPill());
-					road.setPill(Pill.NONE);
+					//road.setPill(Pill.NONE);
+					grid.updateRoad(road, Pill.NONE);
 				}
 			} else {
 				if (road.getOccupiedBy() instanceof Pacman && agent.isScared() == false){

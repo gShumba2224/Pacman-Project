@@ -82,6 +82,7 @@ public class MainWindow extends Application {
 			grid = GridDrawer.drawFromImage(new File ("C:\\Users\\GMAN\\Desktop\\Temp Stuff\\grid01.jpg"),new IntDimension (50,50));
 			File file = new File ("C:\\Users\\GMAN\\Desktop\\Temp Stuff\\grid01.jpg");
 			grid.setBackgroundImage(new Image (file.toURI().toString()));
+			grid.drawPills();
 			game = new Game(grid, pacman, null);
 			AgentActions.moveAgent(pacman, game, new IntDimension (1,1));
 		} catch (IOException e) {

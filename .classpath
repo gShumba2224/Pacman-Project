@@ -7,5 +7,6 @@
 	<classpathentry kind="lib" path="C:/Users/GMAN/Desktop/Mockito/mockito-all-1.10.19.jar"/>
 	<classpathentry kind="lib" path="C:/Users/GMAN/Desktop/Mockito/mockito-all-1.10.19-javadoc.jar"/>
 	<classpathentry kind="lib" path="C:/Users/GMAN/Desktop/Mockito/mockito-all-1.10.19-sources.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/NeuralNetwork"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

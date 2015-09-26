@@ -29,28 +29,52 @@ public class Grid  implements Serializable {
 		blocks = new ArrayList <Block> (numberOfBlocks);
 		blockPixelDimensions = blockSize;
 	}
+	
+	public void updateRoad (Road road, int pill){
+		road.setPill(pill);
+		drawPills (road);
+	}
 
-
-	public void drawGrid (){
+	public void drawPills (){
+		Road road;
+		for (Block block : blocks){
+			try{
+				road = (Road) block;
+				drawPills(road);
+			}catch (ClassCastException e){}
+		}
+	}
+	
+	public void drawPills(Road road){
 		GraphicsContext gc = canvas.getGraphicsContext2D();
-		gc.setFill(Color.RED);
-		gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-		int x = 0;
-		int y = 0;
-		int count = 0;
-		for (int row = 0; row < 600; row = row + 200 ){
-			for (int column = 0; column < 600 ; column = column + 200){
-				if (y > 2) y = 0;
-				gc.setFill(Color.BLUE);
-				gc.setStroke(Color.BLACK);
-				gc.setLineWidth(1.0);
-				int num = x * 3 + y ;
-				gc.fillText(String.valueOf(coordinateToGridNumber(new IntDimension (x,y))), row + 100, column + 100);
-				gc.strokeRect(row, column, blockPixelDimensions.getX() , blockPixelDimensions.getY());
-				y++;
-				count ++;
-			}
-			x ++;
+		IntDimension pillScale;
+		IntDimension startPos;
+		pillScale = new IntDimension ((int)(blockPixelDimensions.X*0.2), (int)(blockPixelDimensions.Y*0.2));
+		startPos =new IntDimension(
+				(road.getGridPosition().X*blockPixelDimensions.X)+(blockPixelDimensions.X/2)-(pillScale.X/2),
+				(road.getGridPosition().Y*blockPixelDimensions.Y)+(blockPixelDimensions.Y/2)-(pillScale.Y/2));
+		
+		if (road.getPill() == Pill.STANDARDPILL){gc.setFill(Color.WHITE);}
+		else if (road.getPill() == Pill.POWERPILL){gc.setFill(Color.RED);}
+		else if (road.getPill() == Pill.GRAPE){gc.setFill(Color.GREEN);}
+		else if (road.getPill() == Pill.NONE){gc.setFill(Color.BLUE);}
+		gc.fillOval(startPos.X, startPos.Y,pillScale.X, pillScale.Y);
+		drawGridExtras();
+	}
+
+	public void drawGridExtras (){
+		GraphicsContext gc = canvas.getGraphicsContext2D();
+		gc.setFill(Color.PINK);
+		gc.setStroke(Color.PINK);
+		gc.setLineWidth(0.1);
+		
+		for (Block block : blocks){
+			IntDimension startPos = new IntDimension (0,0);
+			startPos.X = block.getGridPosition().X * blockPixelDimensions.X;
+			startPos.Y = block.getGridPosition().Y * blockPixelDimensions.Y;
+			gc.strokeRect(startPos.X, startPos.Y, blockPixelDimensions.X, blockPixelDimensions.Y);
+			//gc.strokeText(block.getGridPosition().X + "," + block.getGridPosition().Y, 
+					//startPos.X+10, startPos.Y+10);
 		}
 	}
 	
