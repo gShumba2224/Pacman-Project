@@ -7,6 +7,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class GenericAgent implements Serializable {
+	
+	public static  int PACMAN = 0;
+	public static int GHOST = 1;
 
 	public GenericAgent (Image image){
 		graphic = new ImageView (image);

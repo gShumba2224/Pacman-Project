@@ -48,12 +48,15 @@ public final  class GridDrawer {
 				}else{
 					if (pixels[0] > min ){ //road with grape
 						newGrid.addBlock(new Road (blockPixelDimensions,Pill.GRAPE),gridPos);
+						newGrid.setTotalScores( newGrid.getTotalScores() + Pill.GRAPE);
 					
 					} else if (pixels[1] > min){ // road with power pill
 						newGrid.addBlock(new Road (blockPixelDimensions,Pill.POWERPILL), gridPos);
+						newGrid.setTotalScores( newGrid.getTotalScores() + Pill.POWERPILL);
 					
 					}else if (pixels[2] > min){ //road with standard food
 						newGrid.addBlock (new Road (blockPixelDimensions,Pill.STANDARDPILL), gridPos);
+						newGrid.setTotalScores( newGrid.getTotalScores() + Pill.STANDARDPILL);
 					
 					}else {   //wall
 						newGrid.addBlock (new Wall (blockPixelDimensions), gridPos);

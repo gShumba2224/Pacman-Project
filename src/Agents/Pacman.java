@@ -10,7 +10,9 @@ public class Pacman extends GenericAgent {
 	}
 	public Pacman (Image image){
 		super (image);
+		setScared (true);
 	}
+	
 	
 	
 }

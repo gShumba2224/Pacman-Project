@@ -20,6 +20,7 @@ public class Grid  implements Serializable {
 	private ArrayList<Block> blocks;
 	private IntDimension blockPixelDimensions;
 	private Canvas canvas;
+	private int totalScores = 0;
 	
 	public Grid (IntDimension dimension , IntDimension blockSize){
 		
@@ -73,8 +74,8 @@ public class Grid  implements Serializable {
 			startPos.X = block.getGridPosition().X * blockPixelDimensions.X;
 			startPos.Y = block.getGridPosition().Y * blockPixelDimensions.Y;
 			gc.strokeRect(startPos.X, startPos.Y, blockPixelDimensions.X, blockPixelDimensions.Y);
-			//gc.strokeText(block.getGridPosition().X + "," + block.getGridPosition().Y, 
-					//startPos.X+10, startPos.Y+10);
+			gc.strokeText(block.getGridPosition().X + "," + block.getGridPosition().Y, 
+					startPos.X+10, startPos.Y+10);
 		}
 	}
 	
@@ -138,4 +139,13 @@ public class Grid  implements Serializable {
 	public void setBlockPixelDimensions(IntDimension blockPixelDimensions) {
 		this.blockPixelDimensions = blockPixelDimensions;
 	}
+
+	public int getTotalScores() {
+		return totalScores;
+	}
+
+	public void setTotalScores(int totalScores) {
+		this.totalScores = totalScores;
+	}
+	
 }
