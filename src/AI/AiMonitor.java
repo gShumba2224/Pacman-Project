@@ -19,7 +19,7 @@ public class AiMonitor {
 	      try {  wait();} 
 	      catch (InterruptedException e) {}
 		}
-		network.getInputReader().readInputs (network);
+		network.getInputReader().readInputs (network, agent);
 		network.setWeights(genome);
 		network.update();
 		algorithm.evaluateGenome(genome,network,playerType, game, agent);	

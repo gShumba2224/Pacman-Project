@@ -11,6 +11,12 @@ public class GenericAgent implements Serializable {
 	public static  int PACMAN = 0;
 	public static int GHOST = 1;
 
+	private IntDimension location;
+	private ImageView graphic;
+	private boolean isScared;
+	private int lives = 1;
+	private int speed = 1;
+
 	public GenericAgent (Image image){
 		graphic = new ImageView (image);
 	}
@@ -47,11 +53,4 @@ public class GenericAgent implements Serializable {
 	public void setLives(int lives) {
 		this.lives = lives;
 	}
-
-
-	private IntDimension location;
-	private ImageView graphic;
-	private boolean isScared;
-	private int lives = 1;
-	private int speed = 1;
 }

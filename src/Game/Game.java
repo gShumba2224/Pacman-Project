@@ -26,33 +26,37 @@ public class Game {
 	private int gameMode = 0;
 	private long duration = 1000*30;
 	private Window window = null;
+	private Map<Integer,ArrayList<IntDimension>>initialAgentPositions=new HashMap<Integer,ArrayList<IntDimension>>();
 	
 	
 	public Game() throws IOException{
+		initMaps();
 		drawGrid();
+	}
+	
+	private void initMaps (){
 		agents.put(GenericAgent.PACMAN, new ArrayList <GenericAgent> ());
 		agents.put(GenericAgent.GHOST, new ArrayList <GenericAgent> ());
+		initialAgentPositions.put (GenericAgent.PACMAN, new ArrayList <IntDimension> ());
+		initialAgentPositions.put (GenericAgent.GHOST, new ArrayList <IntDimension> ());
 	}
 	
 	public Game (int numGhosts, int numPacmen) throws IOException{
-		drawGrid();
-		agents.put(GenericAgent.PACMAN, new ArrayList <GenericAgent> ());
-		agents.put(GenericAgent.GHOST, new ArrayList <GenericAgent> ());
+		initMaps();
+		drawGrid ();
 		generateAgents(numGhosts, numPacmen);
 		initAgents();
 	}
 	
 	public Game (Grid grid, int numGhosts, int numPacmen) throws IOException{
+		initMaps();
 		drawGrid();
-		agents.put(GenericAgent.PACMAN, new ArrayList <GenericAgent> ());
-		agents.put(GenericAgent.GHOST, new ArrayList <GenericAgent> ());
 		generateAgents (numGhosts , numPacmen);
-	//	initAgents();
+		initAgents();
 	}
 	
 	public Game (Grid grid, Map<Integer,ArrayList<GenericAgent>>  agents) {
-		agents.put(GenericAgent.PACMAN, new ArrayList <GenericAgent> ());
-		agents.put(GenericAgent.GHOST, new ArrayList <GenericAgent> ());
+		initMaps();
 		this.grid = grid;
 		this.agents = agents;
 		initAgents();
@@ -60,9 +64,14 @@ public class Game {
 	
 	public void end(){
 	}
-	public void reset (){
-
+	public void reset (int agentType){
+		if (agentType == GenericAgent.PACMAN){
+			score = 0;
+		}
+		IntDimension [] agentPos = new IntDimension[initialAgentPositions.get(agentType).size()];
+		initAgents(initialAgentPositions.get(agentType).toArray(agentPos),agentType);
 	}
+	
 	
 	public void start (){
 	}
@@ -74,9 +83,7 @@ public class Game {
 		System.out.println(agents.get(GenericAgent.GHOST).size());
 		System.out.println(agents.get(GenericAgent.PACMAN).size());
 	}
-	public void positionAgents (){
-		
-	}
+
 	public void generateAgents (int numGhosts, int numPacmen){
 		
 		Ghost ghost;
@@ -128,12 +135,29 @@ public class Game {
 		}
 	}
 	
+	public void initAgents (IntDimension[] positions, int agentType){
+		for (int i = 0; i < positions.length ; i++){
+			IntDimension defaultDimension = new IntDimension (1,1);
+			GenericAgent agent =  agents.get(agentType).get(i);
+			agent.setLocation(defaultDimension);
+			Move.moveAgent(agent, this, positions[i]);
+		}
+	}
+	
+	public void initAgents (IntDimension[] ghostPositions, IntDimension[] pacmanPositions){
+		initAgents (ghostPositions,GenericAgent.GHOST);
+		initAgents (pacmanPositions,GenericAgent.PACMAN);
+	}
+	
+	
+	
 	private void drawGrid () throws IOException{
 		grid = GridDrawer.drawFromImage(new File ("C:\\Users\\GMAN\\Desktop\\Temp Stuff\\grid01.jpg"),new IntDimension (50,50));
 		File file = new File ("C:\\Users\\GMAN\\Desktop\\Temp Stuff\\grid01.jpg");
 		grid.setBackgroundImage(new Image (file.toURI().toString()));
 		grid.drawPills();
 	}
+	
 	
 	public int getScore() {
 		return score;
@@ -181,5 +205,12 @@ public class Game {
 
 	public void setAgents (Map <Integer,ArrayList<GenericAgent>> agents) {
 		this.agents = agents;
+	}
+	
+	public void setInitialAgentPositions (int agentType ,IntDimension...dimensions){
+		initialAgentPositions.get(agentType).clear();
+		for (int i = 0 ; dimensions.length > i; i++){
+			initialAgentPositions.get(agentType).add(dimensions[i]);
+		}
 	}
 }

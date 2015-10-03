@@ -1,5 +1,6 @@
 package AI;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import Agents.GenericAgent;
@@ -18,6 +19,7 @@ public class AiSimulator implements Runnable{
 	private int eliteSampleSize;
 	private int boltzSampleSize;
 	private double boltzTemperature;
+	private double boltzCoolRate = 1.0;
 	private int generations;
 	private int runsPerGenome;
 	private int playersPerGame;
@@ -46,10 +48,11 @@ public class AiSimulator implements Runnable{
 		this.playersPerGame = playersPerGame;
 	}
 	
-	public void setSelectionProperties(int eliteSampleSize,int boltzSampleSize,double boltzTemperature){
+	public void setSelectionProperties(int eliteSampleSize,int boltzSampleSize,double boltzTemperature, double boltzCoolRate){
 		this.eliteSampleSize = eliteSampleSize;
 		this.boltzSampleSize = boltzSampleSize;
 		this.boltzTemperature = boltzTemperature;
+		this.boltzCoolRate = boltzCoolRate;
 	}
 	
 	private void dividePopulation(){
@@ -90,15 +93,18 @@ public class AiSimulator implements Runnable{
 				while (runs < totalRuns){
 					GenericAgent agent = agents.get(i).get(index);
 					Genome genome = genomes.get(i).get(index);
-					try {
-						monitor.play(network, algorithm, genome, agent, game, agentType);
+					try {monitor.play(network, algorithm, genome, agent, game, agentType);
 					} catch (DuplicateNeuronID_Exception e) {e.printStackTrace();}
 					if (index == agents.get(i).size()-1){index = 0;}
 					else {index++;}
 					runs ++;
 				}
+				game.reset(agentType);
 			}
-			algorithm.evaluateGeneration(null);
+			try { algorithm.writeLogFile();
+			} catch (IOException e) {e.printStackTrace();}
+			boltzTemperature = boltzTemperature - boltzCoolRate;
+			if (boltzTemperature < 1.0){boltzTemperature = 1.0;}
 			algorithm.newGeneration( eliteSampleSize , boltzSampleSize, boltzTemperature, algorithm.getPopulation().size());
 			game.restart();
 		}
