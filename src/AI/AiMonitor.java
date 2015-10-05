@@ -14,18 +14,23 @@ public class AiMonitor {
 		nextPlayer = player;
 	}
 	public synchronized void play (NeuralNetwork network,GeneticAlgorithm algorithm,Genome genome, 
-			GenericAgent agent, Game game, int playerType) throws DuplicateNeuronID_Exception{
+			int agentIndex, Game game, int playerType) throws DuplicateNeuronID_Exception{
 		while (playerType != nextPlayer){
+			//System.out.println("WAITINHG___"  + playerType);
 	      try {  wait();} 
 	      catch (InterruptedException e) {}
 		}
-		network.getInputReader().readInputs (network, agent);
+		GenericAgent agent = game.getAgents().get(playerType).get(agentIndex);
+		network.getInputReader().readInputs (network, agent, game);
 		network.setWeights(genome);
 		network.update();
-		algorithm.evaluateGenome(genome,network,playerType, game, agent);	
+		algorithm.evaluateGenome(genome,network, game, agent);	
 		if (nextPlayer == GenericAgent.GHOST){nextPlayer = GenericAgent.PACMAN;}
 		else if (nextPlayer == GenericAgent.PACMAN){ nextPlayer = GenericAgent.GHOST;}
+		//System.out.println("doingsz >>"  + playerType);
 		notifyAll();
 	}
+	
+
 
 }

@@ -60,7 +60,7 @@ public class Grid  implements Serializable {
 		else if (road.getPill() == Pill.GRAPE){gc.setFill(Color.GREEN);}
 		else if (road.getPill() == Pill.NONE){gc.setFill(Color.BLUE);}
 		gc.fillOval(startPos.X, startPos.Y,pillScale.X, pillScale.Y);
-		drawGridExtras();
+		//drawGridExtras();
 	}
 
 	public void drawGridExtras (){

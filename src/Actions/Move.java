@@ -34,10 +34,10 @@ public class Move  {
 			
 			if (agent instanceof Pacman){
 				if (road.getOccupiedBy() != null && agent.isScared() == true){
-					agent.setLives(agent.getLives() - 1);
+					//agent.setLives(agent.getLives() - 1);
 					result = Move.GOT_KILLED;
 				}else if ( road.getOccupiedBy() != null && agent.isScared() == false){
-					road.getOccupiedBy().setLives(agent.getLives() - 1);
+					//road.getOccupiedBy().setLives(agent.getLives() - 1);
 					result = Move.KILLED_ENEMY;
 				}else if (road.getOccupiedBy() == null && road.getPill() != Pill.NONE){
 					game.setScore(game.getScore() + road.getPill());

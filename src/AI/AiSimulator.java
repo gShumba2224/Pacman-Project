@@ -56,23 +56,22 @@ public class AiSimulator implements Runnable{
 	}
 	
 	private void dividePopulation(){
-		agents.clear();
 		genomes.clear();
 		ArrayList <Genome> genomeList = new ArrayList <Genome> ();
-		ArrayList <GenericAgent> agentList = new ArrayList <GenericAgent> ();
+		//ArrayList <GenericAgent> agentList = new ArrayList <GenericAgent> ();
 		genomes.add(genomeList);
-		agents.add(agentList);
+		//agents.add(agentList);
 		int count = 0;
 		for (int i = 0; i < algorithm.getPopulation().size() ; i++){
 			if  (count >= playersPerGame){
 				count = 0;
 				genomeList =  new ArrayList <Genome> ();
-				agentList =  new ArrayList <GenericAgent> ();
+				//agentList =  new ArrayList <GenericAgent> ();
 				genomes.add(genomeList);
-				agents.add(agentList);
+				//agents.add(agentList);
 			}
 			genomeList.add(algorithm.getPopulation().get(i));
-			agentList.add(game.getAgents().get(agentType).get(i));
+			//agentList.add(game.getAgents().get(agentType).get(i));
 			count ++;
 		}
 	}
@@ -84,29 +83,37 @@ public class AiSimulator implements Runnable{
 
 	@Override
 	public void run() {
-		while (generations > algorithm.getGeneration()){
+		int ddd = 0;
+		while (this.generations > algorithm.getGeneration()){
+			ddd++;
 			dividePopulation();
 			for (int i = 0; i < genomes.size(); i++){
 				int index = 0;
 				int totalRuns = runsPerGenome * genomes.get(i).size();
 				int runs = 0;
 				while (runs < totalRuns){
-					GenericAgent agent = agents.get(i).get(index);
+					//System.out.println(game.getAgents().get(agentType).size() + " AAAA " + agentType);
+					//GenericAgent agent = game.getAgents().get(agentType).get(index);//agents.get(i).get(index);
 					Genome genome = genomes.get(i).get(index);
-					try {monitor.play(network, algorithm, genome, agent, game, agentType);
-					} catch (DuplicateNeuronID_Exception e) {e.printStackTrace();}
-					if (index == agents.get(i).size()-1){index = 0;}
+					try {monitor.play(network, algorithm, genome, index, game, agentType);
+					} catch (DuplicateNeuronID_Exception e) {
+						e.printStackTrace();
+						System.out.println("shieet");
+					}
+					if (index == genomes.get(i).size()-1){index = 0;}
 					else {index++;}
 					runs ++;
 				}
-				game.reset(agentType);
+				//monitor.restartGame(game, agentType);
 			}
-			try { algorithm.writeLogFile();
-			} catch (IOException e) {e.printStackTrace();}
+		//	System.out.println("Generatdfsdf = $" + algorithm.getGeneration());
+			//try { algorithm.writeLogFile();
+			//} catch (IOException e) {e.printStackTrace();}
 			boltzTemperature = boltzTemperature - boltzCoolRate;
 			if (boltzTemperature < 1.0){boltzTemperature = 1.0;}
 			algorithm.newGeneration( eliteSampleSize , boltzSampleSize, boltzTemperature, algorithm.getPopulation().size());
-			game.restart();
+			//monitor.restartGame(game, agentType);
+			System.out.println(ddd + " gens gens " + algorithm.getGeneration());
 		}
 	}
 }
