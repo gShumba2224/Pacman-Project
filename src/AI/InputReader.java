@@ -84,7 +84,7 @@ public class InputReader extends NeuralNetworkReader {
     		inputLayer.getNeurons().get(startIndex + 2).setOutputValue(enemyDist);
     	}catch (ClassCastException e){
     		for (int i = 0; i < 3; i++){
-    			inputLayer.getNeurons().get(i).setOutputValue(0);}
+    			inputLayer.getNeurons().get(i).setOutputValue(-1);}
     	}
     }
     
@@ -93,7 +93,7 @@ public class InputReader extends NeuralNetworkReader {
     		Road road = (Road)block;
     		inputLayer.getNeurons().get(startIndex).setOutputValue(1.0);
     		if ( road.getOccupiedBy() != null && (road.getOccupiedBy() instanceof Ghost == true)){
-    			inputLayer.getNeurons().get(startIndex + 1).setOutputValue(0.0);
+    			inputLayer.getNeurons().get(startIndex + 1).setOutputValue(-1.0);
     		}else { inputLayer.getNeurons().get(startIndex + 1).setOutputValue(1.0);}
     		double enemyDist = closestEnemyDistance(agent, GenericAgent.GHOST);
     		if (enemyDist != 0){enemyDist =  1 - (1/enemyDist);}
@@ -101,7 +101,7 @@ public class InputReader extends NeuralNetworkReader {
     		inputLayer.getNeurons().get(startIndex + 2).setOutputValue(enemyDist);
     	}catch (ClassCastException e){
     		for (int i = 0; i < 3; i++){
-    			inputLayer.getNeurons().get(i).setOutputValue(0);}
+    			inputLayer.getNeurons().get(i).setOutputValue(-1);}
     	}
     }
 

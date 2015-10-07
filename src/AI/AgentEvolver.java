@@ -11,6 +11,7 @@ import GeneticAlgorithm.Evolve;
 import GeneticAlgorithm.GeneticAlgorithm;
 import GeneticAlgorithm.Genome;
 import Neurons.NeuralNetwork;
+import Neurons.Neuron;
 import Utils.IntDimension;
 
 interface PerformanceCommand {
@@ -30,20 +31,32 @@ public class AgentEvolver  {
 	private static final String RIGHT = "0100";
 	private static final String UP = "0010";
 	private static final String DOWN = "0001";
-	
-	
-	public AgentEvolver (NeuralNetwork network, int population,int agentType){
+
+	public AgentEvolver (NeuralNetwork network, int population,int agentType, double minBias, double maxBias, 
+			double minWeight,double maxWeight,String...fitnessProperties){
+		
 		if (agentType == GenericAgent.PACMAN){
-			 initAlgorithm (network, population ,"move","enemyAvoid","points","enemyKills");
+			 initAlgorithm (network, population ,minBias,maxBias,minWeight,maxWeight,
+					 "move","enemyAvoid","points","enemyKills");
 		}else{
-			 initAlgorithm(network, population, "move","enemyAvoid","enemyKills");
+			 initAlgorithm(network, population,minBias,maxBias,minWeight,maxWeight,
+					 "move","enemyAvoid","enemyKills");
 		}
 		initPerformanceMap ();
 		initMoveMap ();
 	}
-	private synchronized void increamentPerformance (Genome genome, double increament, String property){
+	
+	public AgentEvolver (NeuralNetwork network, int population,int agentType){
+		if (agentType == GenericAgent.PACMAN){
+			 initAlgorithm (network, population,0.0, 1.0, 0.0, 1.0,"move","enemyAvoid","points","enemyKills");
+		}else{
+			 initAlgorithm(network, population ,0.0, 1.0, 0.0, 1.0, "move","enemyAvoid","enemyKills");
+		}
+		initPerformanceMap ();
+		initMoveMap ();
+	}
+	private  void increamentPerformance (Genome genome, double increament, String property){
 		double currentVal = genome.getFitnessProperties().get(property);
-		System.out.println(currentVal + " **CURRENT VALL MOIT* " + property);
 		currentVal = currentVal + increament;
 		genome.getFitnessProperties().replace(property, currentVal);
 	}
@@ -52,7 +65,7 @@ public class AgentEvolver  {
 		Double currentVal = genome.getFitnessProperties().get(property);
 		currentVal = currentVal - decreament;
 		genome.getFitnessProperties().replace(property, currentVal);
-		System.out.println(currentVal + " **CURRENT VAL lol MOIT * " + property);
+		//System.out.println(currentVal + " **CURRENT VAL lol MOIT * " + property);
 		
 	}
 	private void initPerformanceMap (){
@@ -60,48 +73,58 @@ public class AgentEvolver  {
 		ratePerformance.put( Move.GOT_GRAPE_PILL, new PerformanceCommand () {
 			@Override
 			public void run(Genome genome) {
-				increamentPerformance(genome, Move.GOT_GRAPE_PILL/10.0, "points");
-				increamentPerformance(genome, 0.05, "move");
-				increamentPerformance(genome, 0.1, "enemyAvoid");
+				increamentPerformance(genome, Move.GOT_GRAPE_PILL, "points");
+				increamentPerformance(genome, 5, "move");
+				increamentPerformance(genome, 5, "enemyAvoid");
 			}
 		});
 		ratePerformance.put( Move.GOT_POWER_PILL, new PerformanceCommand () {
 			@Override
 			public void run(Genome genome) {
-				increamentPerformance(genome, Move.GOT_POWER_PILL/10.0, "points");
-				increamentPerformance(genome, 0.05, "move");
-				increamentPerformance(genome, 0.1, "enemyAvoid");}});
+				increamentPerformance(genome, Move.GOT_POWER_PILL, "points");
+				increamentPerformance(genome, 5, "move");
+				increamentPerformance(genome, 5, "enemyAvoid");
+			}
+		});
 		
 		ratePerformance.put( Move.GOT_STANDARD_PILL, new PerformanceCommand () {
 			@Override
 			public void run(Genome genome) {
-				increamentPerformance(genome, Move.GOT_STANDARD_PILL/10.0, "points");
-				increamentPerformance(genome, 0.05, "move");
-				increamentPerformance(genome, 0.1, "enemyAvoid");}});
+				increamentPerformance(genome, Move.GOT_STANDARD_PILL, "points");
+				increamentPerformance(genome, 5, "move");
+				increamentPerformance(genome, 5, "enemyAvoid");
+			}
+		});
 		
 		ratePerformance.put( Move.GOT_NONE_PILL, new PerformanceCommand () {
 			@Override
 			public void run(Genome genome) {
-				increamentPerformance(genome, 0.05, "move");
-				increamentPerformance(genome, 0.1, "enemyAvoid");}});
+				increamentPerformance(genome, 5, "move");
+				increamentPerformance(genome, 5, "enemyAvoid");
+			}
+		});
 		
 		ratePerformance.put( Move.GOT_KILLED, new PerformanceCommand () {
 			@Override
 			public void run(Genome genome) {
-				decreamentPerformance(genome, 2.0, "enemyAvoid");
-				increamentPerformance(genome,0.05, "move");}});
+				increamentPerformance(genome,1, "move");
+			}
+		});
 		
 		ratePerformance.put( Move.KILLED_ENEMY, new PerformanceCommand () {
 			@Override
 			public void run(Genome genome) {
-				increamentPerformance(genome, 1.0, "enemyKills");
-				increamentPerformance(genome, 0.05, "move");
-				increamentPerformance(genome, 0.1, "enemyAvoid");}});
+				increamentPerformance(genome, 20, "enemyKills");
+				increamentPerformance(genome, 5, "move");
+			}
+		});
 		
 		ratePerformance.put( Move.HITWALL, new PerformanceCommand () {
 			@Override
 			public void run(Genome genome) {
-				decreamentPerformance(genome, 0.1, "move");;}});
+				//decreamentPerformance(genome, 10, "move");
+			}
+		});
 	}
 	
 	private void initMoveMap (){
@@ -132,15 +155,32 @@ public class AgentEvolver  {
 	
 	private String outputToKey (NeuralNetwork network){
 		StringBuilder builder = new StringBuilder ();
+		System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+		int i= 0;
+		double highest = network.getOutputs().get(0);
 		for (double value : network.getOutputs()){
-			if (value >= 0.5){builder.append("1");}
-			else { builder.append("0");}
+			System.out.println(i);
+//			if (value >= 0.5){builder.append("1");}
+//			else { builder.append("0");}
+			if (value > highest ){
+				highest = value;
+				i++;
+			}
+		
 		}
-		return builder.toString();
+		String x = "";
+		if (i == 0) {x = "1000";}
+		if (i == 1) {x = "0100";}
+		if (i == 2) {x = "0010";}
+		if (i == 3) {x = "0001";}
+		//System.out.println(x);
+		return x;//builder.toString();
 	}
 	
-	private void initAlgorithm (NeuralNetwork network, int population, String...parms){
-		algorithm =   new Evolve (network, population ,parms){
+
+	private void initAlgorithm (NeuralNetwork network, int population, double minBias, double maxBias, 
+			double minWeight,double maxWeight,String...parms){
+		algorithm =   new Evolve (network, population ,minBias,maxBias,minWeight,maxWeight,parms){
 			@Override
 			public void evaluateGenome (Genome genome, Object...parms){
 				NeuralNetwork network =(NeuralNetwork) parms[0];
@@ -148,15 +188,10 @@ public class AgentEvolver  {
 				GenericAgent agent = (GenericAgent)parms[2];
 				String key = outputToKey (network);
 				MoveCommand command = agentMovement.get(key);
-				for (String parm : genome.getFitnessProperties().keySet()){
-					if (genome.getFitnessProperties().get(parm) == null){
-						System.out.println(parm +" g parms = " + genome.getFitnessProperties().get(parm));
-					}
-				}
 				if (command != null){
 					int result = command.run(network, agent, game);
-					System.out.println("RESULT == " + result);
-					ratePerformance.get(result).run (genome);
+					PerformanceCommand pefCommand = ratePerformance.get(result);
+					pefCommand.run (genome);
 				}
 			}
 		};

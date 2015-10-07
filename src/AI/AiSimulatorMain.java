@@ -10,8 +10,10 @@ import Agents.Ghost;
 import Agents.Pacman;
 import Game.Game;
 import GeneticAlgorithm.Evolve;
+import GeneticAlgorithm.Gene;
 import GeneticAlgorithm.GeneticAlgorithm;
 import GeneticAlgorithm.Genome;
+import Neurons.InputConnection;
 import Neurons.InputNeuron;
 import Neurons.NeuralLayer;
 import Neurons.NeuralNetwork;
@@ -66,24 +68,32 @@ public class AiSimulatorMain  extends Application {
 	}
 	
 	public void buildNetwork1 (){
-		NeuralNetwork net1 =  new NeuralNetwork(13, 4, 1, 4);
-		NeuralNetwork net2 = new NeuralNetwork(13, 4, 1, 4);
+		NeuralNetwork net1 =  new NeuralNetwork(13, 4, 1, 10);
+		NeuralNetwork net2 = new NeuralNetwork(13, 4, 1, 10);
+		
 		InputReader reader = new InputReader(game);
 		InputReader reader2 = new InputReader(game);
 		
 		net1.setInputReader(reader);
 		net2.setInputReader(reader2);
 		
-		AgentEvolver pacEvolver = new AgentEvolver(net1, 20, GenericAgent.PACMAN);
-		AgentEvolver ghostEvolver = new AgentEvolver(net2, 20, GenericAgent.GHOST);
+		int gen = 800;
+		int temp = 10;
+		int boltz = 10;
+		int elite = 10;
+		int pop = 100;
+		int runs = 12;
 		
-		pacSim.setSelectionProperties(6, 8, 10, 1);
+		AgentEvolver pacEvolver = new AgentEvolver(net1, pop,GenericAgent.PACMAN, 0,2,-1,1);
+		AgentEvolver ghostEvolver = new AgentEvolver(net2,pop,GenericAgent.GHOST, 0,2,-1,1);
+		
+		pacSim.setSelectionProperties(elite, boltz, temp, 1);
 		pacSim.setSimObjects(net1, pacEvolver.getAlgorithm(), game, GenericAgent.PACMAN);
-		pacSim.setSimulationProperties(5000, 10, 5);
+		pacSim.setSimulationProperties(gen, runs, 5);
 		
-		ghostSim.setSelectionProperties(6, 8, 10, 1);
+		ghostSim.setSelectionProperties(elite, boltz, temp, 1);
 		ghostSim.setSimObjects(net2, ghostEvolver.getAlgorithm(), game, GenericAgent.GHOST);
-		ghostSim.setSimulationProperties(5000, 10, 5);
+		ghostSim.setSimulationProperties(gen, runs, 5);
 	}
 	
   public static void main(String[] args) {

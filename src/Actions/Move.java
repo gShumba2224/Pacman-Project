@@ -40,19 +40,19 @@ public class Move  {
 					//road.getOccupiedBy().setLives(agent.getLives() - 1);
 					result = Move.KILLED_ENEMY;
 				}else if (road.getOccupiedBy() == null && road.getPill() != Pill.NONE){
-					game.setScore(game.getScore() + road.getPill());
+					//game.setScore(game.getScore() + road.getPill());
 					grid.updateRoad(road, Pill.NONE);
 					result = road.getPill();
 				}
 			} else {
 				if (road.getOccupiedBy() instanceof Pacman && agent.isScared() == false){
 					Pacman pacman = (Pacman)road.getOccupiedBy();
-					pacman.setLives(pacman.getLives()-1);
-					if (pacman.getLives() < 0){game.end();}
-					else {game.restart();}
+					//pacman.setLives(pacman.getLives()-1);
+					//if (pacman.getLives() < 0){game.end();}
+					//else {game.restart();}
 					result = Move.KILLED_ENEMY;
 				} else if (road.getOccupiedBy() instanceof Pacman && agent.isScared() == true){
-					agent.setLives(agent.getLives() - 1);
+					//agent.setLives(agent.getLives() - 1);
 					result = Move.GOT_KILLED;
 				} else if (road.getOccupiedBy() instanceof Ghost){
 					result = Move.HITWALL;

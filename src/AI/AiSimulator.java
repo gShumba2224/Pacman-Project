@@ -83,17 +83,13 @@ public class AiSimulator implements Runnable{
 
 	@Override
 	public void run() {
-		int ddd = 0;
 		while (this.generations > algorithm.getGeneration()){
-			ddd++;
 			dividePopulation();
 			for (int i = 0; i < genomes.size(); i++){
 				int index = 0;
 				int totalRuns = runsPerGenome * genomes.get(i).size();
 				int runs = 0;
 				while (runs < totalRuns){
-					//System.out.println(game.getAgents().get(agentType).size() + " AAAA " + agentType);
-					//GenericAgent agent = game.getAgents().get(agentType).get(index);//agents.get(i).get(index);
 					Genome genome = genomes.get(i).get(index);
 					try {monitor.play(network, algorithm, genome, index, game, agentType);
 					} catch (DuplicateNeuronID_Exception e) {
@@ -104,7 +100,7 @@ public class AiSimulator implements Runnable{
 					else {index++;}
 					runs ++;
 				}
-				//monitor.restartGame(game, agentType);
+				game.reset(agentType);//monitor.restAgents(agentType, game);
 			}
 		//	System.out.println("Generatdfsdf = $" + algorithm.getGeneration());
 			//try { algorithm.writeLogFile();
@@ -112,8 +108,7 @@ public class AiSimulator implements Runnable{
 			boltzTemperature = boltzTemperature - boltzCoolRate;
 			if (boltzTemperature < 1.0){boltzTemperature = 1.0;}
 			algorithm.newGeneration( eliteSampleSize , boltzSampleSize, boltzTemperature, algorithm.getPopulation().size());
-			//monitor.restartGame(game, agentType);
-			System.out.println(ddd + " gens gens " + algorithm.getGeneration());
+			System.out.println("currentGen = " + algorithm.getGeneration());
 		}
 	}
 }
