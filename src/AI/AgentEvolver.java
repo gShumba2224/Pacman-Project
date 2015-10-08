@@ -32,25 +32,25 @@ public class AgentEvolver  {
 	private static final String UP = "0010";
 	private static final String DOWN = "0001";
 
-	public AgentEvolver (NeuralNetwork network, int population,int agentType, double minBias, double maxBias, 
+	public AgentEvolver (NeuralNetwork network, int population,int agentType, 
 			double minWeight,double maxWeight,String...fitnessProperties){
 		
 		if (agentType == GenericAgent.PACMAN){
-			 initAlgorithm (network, population ,minBias,maxBias,minWeight,maxWeight,
+			 initAlgorithm (network, population, minWeight,maxWeight,
 					 "move","enemyAvoid","points","enemyKills");
 		}else{
-			 initAlgorithm(network, population,minBias,maxBias,minWeight,maxWeight,
+			 initAlgorithm(network, population,minWeight,maxWeight,
 					 "move","enemyAvoid","enemyKills");
 		}
 		initPerformanceMap ();
 		initMoveMap ();
 	}
-	
+
 	public AgentEvolver (NeuralNetwork network, int population,int agentType){
 		if (agentType == GenericAgent.PACMAN){
-			 initAlgorithm (network, population,0.0, 1.0, 0.0, 1.0,"move","enemyAvoid","points","enemyKills");
+			 initAlgorithm (network, population, 0.0, 1.0,"move","enemyAvoid","points","enemyKills");
 		}else{
-			 initAlgorithm(network, population ,0.0, 1.0, 0.0, 1.0, "move","enemyAvoid","enemyKills");
+			 initAlgorithm(network, population ,0.0, 1.0, "move","enemyAvoid","enemyKills");
 		}
 		initPerformanceMap ();
 		initMoveMap ();
@@ -176,11 +176,10 @@ public class AgentEvolver  {
 		//System.out.println(x);
 		return x;//builder.toString();
 	}
-	
 
-	private void initAlgorithm (NeuralNetwork network, int population, double minBias, double maxBias, 
+	private void initAlgorithm (NeuralNetwork network, int population, 
 			double minWeight,double maxWeight,String...parms){
-		algorithm =   new Evolve (network, population ,minBias,maxBias,minWeight,maxWeight,parms){
+		algorithm =   new Evolve (network, population ,minWeight,maxWeight,parms){
 			@Override
 			public void evaluateGenome (Genome genome, Object...parms){
 				NeuralNetwork network =(NeuralNetwork) parms[0];

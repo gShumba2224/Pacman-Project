@@ -3,6 +3,7 @@ package AI;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import Actions.Move;
 import Agents.GenericAgent;
@@ -13,6 +14,7 @@ import GeneticAlgorithm.Evolve;
 import GeneticAlgorithm.Gene;
 import GeneticAlgorithm.GeneticAlgorithm;
 import GeneticAlgorithm.Genome;
+import Neurons.DuplicateNeuronID_Exception;
 import Neurons.InputConnection;
 import Neurons.InputNeuron;
 import Neurons.NeuralLayer;
@@ -21,6 +23,7 @@ import Neurons.NeuralNetworkReader;
 import Neurons.Neuron;
 import PacmanGrid.Block;
 import PacmanGrid.Road;
+import Search.A_StarSearch;
 import Utils.IntDimension;
 import javafx.application.Application;
 import javafx.geometry.Pos;
@@ -68,32 +71,42 @@ public class AiSimulatorMain  extends Application {
 	}
 	
 	public void buildNetwork1 (){
-		NeuralNetwork net1 =  new NeuralNetwork(13, 4, 1, 10);
+		NeuralNetwork net1 =  new NeuralNetwork(2, 2, 1, 2);
 		NeuralNetwork net2 = new NeuralNetwork(13, 4, 1, 10);
 		
-		InputReader reader = new InputReader(game);
-		InputReader reader2 = new InputReader(game);
+		net1.getInputLayer().getNeurons().get(0).setOutputValue(0.8);
+		net1.getInputLayer().getNeurons().get(1).setOutputValue(0.4);
 		
-		net1.setInputReader(reader);
-		net2.setInputReader(reader2);
+		net1.getHiddenLayers().get(0).getBiasNeuron().setOutputValue(-1);
+		net1.getOutputLayer().getBiasNeuron().setOutputValue(-1);
 		
-		int gen = 800;
-		int temp = 10;
-		int boltz = 10;
-		int elite = 10;
-		int pop = 100;
-		int runs = 12;
+		A_StarSearch x = new A_StarSearch(game.getGrid());
 		
-		AgentEvolver pacEvolver = new AgentEvolver(net1, pop,GenericAgent.PACMAN, 0,2,-1,1);
-		AgentEvolver ghostEvolver = new AgentEvolver(net2,pop,GenericAgent.GHOST, 0,2,-1,1);
+
 		
-		pacSim.setSelectionProperties(elite, boltz, temp, 1);
-		pacSim.setSimObjects(net1, pacEvolver.getAlgorithm(), game, GenericAgent.PACMAN);
-		pacSim.setSimulationProperties(gen, runs, 5);
-		
-		ghostSim.setSelectionProperties(elite, boltz, temp, 1);
-		ghostSim.setSimObjects(net2, ghostEvolver.getAlgorithm(), game, GenericAgent.GHOST);
-		ghostSim.setSimulationProperties(gen, runs, 5);
+//		InputReader reader = new InputReader(game);
+//		InputReader reader2 = new InputReader(game);
+//		
+//		net1.setInputReader(reader);
+//		net2.setInputReader(reader2);
+//		
+//		int gen = 800;
+//		int temp = 10;
+//		int boltz = 10;
+//		int elite = 10;
+//		int pop = 100;
+//		int runs = 12;
+//		
+//		AgentEvolver pacEvolver = new AgentEvolver(net1, pop,GenericAgent.PACMAN, 0,2,-1,1);
+//		AgentEvolver ghostEvolver = new AgentEvolver(net2,pop,GenericAgent.GHOST, 0,2,-1,1);
+//		
+//		pacSim.setSelectionProperties(elite, boltz, temp, 1);
+//		pacSim.setSimObjects(net1, pacEvolver.getAlgorithm(), game, GenericAgent.PACMAN);
+//		pacSim.setSimulationProperties(gen, runs, 5);
+//		
+//		ghostSim.setSelectionProperties(elite, boltz, temp, 1);
+//		ghostSim.setSimObjects(net2, ghostEvolver.getAlgorithm(), game, GenericAgent.GHOST);
+//		ghostSim.setSimulationProperties(gen, runs, 5);
 	}
 	
   public static void main(String[] args) {
