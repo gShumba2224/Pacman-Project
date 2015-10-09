@@ -23,7 +23,9 @@ import Neurons.NeuralNetworkReader;
 import Neurons.Neuron;
 import PacmanGrid.Block;
 import PacmanGrid.Road;
+import Search.A_StarNode;
 import Search.A_StarSearch;
+import Search.ArtifactSearch;
 import Utils.IntDimension;
 import javafx.application.Application;
 import javafx.geometry.Pos;
@@ -80,7 +82,18 @@ public class AiSimulatorMain  extends Application {
 		net1.getHiddenLayers().get(0).getBiasNeuron().setOutputValue(-1);
 		net1.getOutputLayer().getBiasNeuron().setOutputValue(-1);
 		
-		A_StarSearch x = new A_StarSearch(game.getGrid());
+//		A_StarSearch x = new A_StarSearch(game.getGrid());
+//		A_StarNode y = x.beginSearch(new IntDimension(6, 5), new IntDimension(6, 4));
+//		
+//		while (y != null){
+//			System.out.println("pos = " + y.block.getGridPosition().X +","+
+//			y.block.getGridPosition().Y);
+//			y = y.parent;
+//		}
+		
+		ArtifactSearch x = new ArtifactSearch (game.getGrid());
+		List<Double>y = x.findPowerPillDistances (game.getGrid().getBlock(new IntDimension(7, 11)));
+
 		
 
 		

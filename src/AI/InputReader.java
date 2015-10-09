@@ -1,5 +1,9 @@
 package AI;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import Agents.GenericAgent;
 import Agents.Ghost;
 import Agents.Pacman;
@@ -7,16 +11,46 @@ import Game.Game;
 import Neurons.NeuralLayer;
 import Neurons.NeuralNetwork;
 import Neurons.NeuralNetworkReader;
+import Neurons.Neuron;
 import PacmanGrid.Block;
+import PacmanGrid.Grid;
 import PacmanGrid.Road;
+import PacmanGrid.Wall;
+import Search.ArtifactSearch;
+import Search.Container;
 import Utils.IntDimension;
 
 public class InputReader extends NeuralNetworkReader {
+	
+	ArtifactSearch search ;
 
 	public Game game = null;
 	public InputReader (Game game){
 		this.game = game;
 	}
+	
+	private List<Block> getAdjacentBlocks (IntDimension centre, Grid grid){
+		
+		List <Block> adjacentBlocks = new ArrayList<Block>();
+		Block block;
+		int x = centre.X;
+		int y = centre.Y;
+		
+		block = grid.getBlock(new IntDimension(x-1, y)); //left
+		adjacentBlocks.add(block);
+		
+		block = grid.getBlock(new IntDimension(x+1, y)); //right
+		adjacentBlocks.add(block);
+		
+		block = grid.getBlock(new IntDimension(x, y)); //top
+		adjacentBlocks.add(block);
+		
+		block = grid.getBlock(new IntDimension(x, y-1)); //bottom
+		adjacentBlocks.add(block);
+	
+		return adjacentBlocks;
+	}
+	
 	@Override
 	public void readInputs(NeuralNetwork network, Object... parameters) {
 		NeuralLayer inputLayer = network.getInputLayer();
@@ -44,25 +78,8 @@ public class InputReader extends NeuralNetworkReader {
 		}else {inputLayer.getNeurons().get(12).setOutputValue(1.0);}		
 	}
     
-    public double calculateDistance (IntDimension from, IntDimension to ){
-    	IntDimension distance = new IntDimension (0,0);
-		distance.X = Math.abs( from.X - to.X );
-		distance.Y =  Math.abs(from.Y - to.Y );
-		double magnitude = Math.sqrt((distance.X * distance.X ) + (distance.Y*distance.Y));
-		return magnitude;
-    }
     
-    public double closestEnemyDistance ( GenericAgent agent, int agentType){
-    	double closet = 0.0;
-    	double distance ;
-    	distance = calculateDistance(game.getAgents().get(agentType).get(0).getLocation(),agent.getLocation());
-    	for (int i = 1; game.getAgents().get(agentType).size() > i ; i++){
-    		GenericAgent enemy =  game.getAgents().get(agentType).get(i);
-    		distance = calculateDistance(enemy.getLocation(), agent.getLocation());
-    		if (distance < closet){closet = distance;}
-    	}
-    	return closet;
-    }
+
     
     public void setAgentInput (Block block,GenericAgent agent, NeuralLayer inputLayer, int startIndex){
     	if (agent  instanceof Pacman){
@@ -73,36 +90,27 @@ public class InputReader extends NeuralNetworkReader {
     }
 	
     public void setPacmanInput (Block block,GenericAgent agent, NeuralLayer inputLayer, int startIndex){
-    	try{
-    		Road road = (Road)block;
-    		inputLayer.getNeurons().get(startIndex).setOutputValue(1.0);
-    		//System.out.println(block);
-    		inputLayer.getNeurons().get(startIndex + 1).setOutputValue(road.getPill()/10);
-    		double enemyDist = closestEnemyDistance(agent, GenericAgent.PACMAN);
-    		if (enemyDist != 0){enemyDist =  1 - (1/enemyDist);}
-    		else enemyDist = 0;
-    		inputLayer.getNeurons().get(startIndex + 2).setOutputValue(enemyDist);
-    	}catch (ClassCastException e){
-    		for (int i = 0; i < 3; i++){
-    			inputLayer.getNeurons().get(i).setOutputValue(-1);}
+		Map<Integer,Container> pillDistances = search.findNearestPill(game.getGrid(), block.getGridPosition(), 1000);
+    	
+		List <Neuron> neurons = inputLayer.getNeurons();
+    	for (int i = 0; i < inputLayer.getNeurons().size();i = i+ 8){
+    		if ( block instanceof Road){// {neurons.get(i).setOutputValue(-1);}
+    			neurons.get(i).setOutputValue(1);
+    			double pillDist = pillDistances.get(block.getGridNumber()).distance;
+    			if (pillDist == 0){neurons.get(i+1).setOutputValue(1);}
+    			else{
+    				pillDist = 1-(pillDist /100);
+    				neurons.get(i+1).setOutputValue(pillDist);}
+    			pillDist = search.findPowerPillDistances(block);
+    		}
     	}
+    		
+    		
+    	
     }
     
     public void setGhostInput (Block block,GenericAgent agent, NeuralLayer inputLayer, int startIndex){
-    	try{
-    		Road road = (Road)block;
-    		inputLayer.getNeurons().get(startIndex).setOutputValue(1.0);
-    		if ( road.getOccupiedBy() != null && (road.getOccupiedBy() instanceof Ghost == true)){
-    			inputLayer.getNeurons().get(startIndex + 1).setOutputValue(-1.0);
-    		}else { inputLayer.getNeurons().get(startIndex + 1).setOutputValue(1.0);}
-    		double enemyDist = closestEnemyDistance(agent, GenericAgent.GHOST);
-    		if (enemyDist != 0){enemyDist =  1 - (1/enemyDist);}
-    		else enemyDist = 0;
-    		inputLayer.getNeurons().get(startIndex + 2).setOutputValue(enemyDist);
-    	}catch (ClassCastException e){
-    		for (int i = 0; i < 3; i++){
-    			inputLayer.getNeurons().get(i).setOutputValue(-1);}
-    	}
+
     }
 
 }

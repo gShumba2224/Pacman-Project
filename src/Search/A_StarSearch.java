@@ -11,6 +11,7 @@ import PacmanGrid.Block;
 import PacmanGrid.Grid;
 import PacmanGrid.Road;
 import PacmanGrid.Wall;
+import Utils.DistanceCalculator;
 import Utils.IntDimension;
 
 public class A_StarSearch {
@@ -18,19 +19,15 @@ public class A_StarSearch {
 	private List <A_StarNode> closed = new ArrayList<A_StarNode> ();
 	private Map <String,A_StarNode> nodes = new HashMap<String,A_StarNode> ();
 	private Map <String,A_StarNode> open = new HashMap<String,A_StarNode> ();
-	private static final int MOVE = 10;
-	private int maxIterations = 100;
+	public static final int MOVE = 10;
+	private int maxIterations = 10000;
 	private int currentIterations = 0;
+	private static A_StarNode defaultParent = new A_StarNode();
 	
 	public A_StarSearch (Grid grid){
 		createNodeList(grid);
-		beginSearch(new IntDimension (12,13), new IntDimension(6, 4));
-//		for (Entry en : nodes.entrySet()){
-//			A_StarNode n = (A_StarNode)en.getValue();
-//			System.out.println("key =" + en.getKey() + " pos = " + n.block.getGridPosition().X +
-//					"," +  n.block.getGridPosition().Y);
-//		} 
 	}
+	
 	private void createNodeList (Grid grid){
 		for (Block block : grid.getBlocks()){
 			String key = String.valueOf(block.getGridPosition().X + ","
@@ -40,17 +37,23 @@ public class A_StarSearch {
 			nodes.put(key, node);
 		}
 	}
-	private int manhattanDistance (IntDimension from, IntDimension to){
-		int x = Math.abs( from.X - to.X );
-		int y =  Math.abs(from.Y - to.Y );
-		return (x+y);
+	
+	private void resetNodeValues (){
+		open.clear();
+		for (A_StarNode node : nodes.values()){
+			node.f_score = 0;
+			node.g_score = 0;
+			node.g_score = 0;
+			node.isClosed = false;
+			node.isInOpen = false;
+			node.parent = defaultParent;
+		}
 	}
 	
 	private List<A_StarNode> getAdjacencies (IntDimension location){
 		List<A_StarNode> adjacencies = new ArrayList <A_StarNode> ();
-		//String[] seperatedKey = location.split(",");
-		int x = location.X; //Integer.valueOf(seperatedKey[0]);
-		int y = location.Y;// Integer.valueOf(seperatedKey[1]);
+		int x = location.X; 
+		int y = location.Y;
 		A_StarNode node;
 		
 		node = nodes.get(String.valueOf( x-1) + "," + String.valueOf(y) ); //LEFT
@@ -64,7 +67,6 @@ public class A_StarSearch {
 		
 		node = nodes.get(String.valueOf( x) + "," + String.valueOf(y+1) ); //BOTTOM
 		if (node.isClosed == false && node.block instanceof Road)adjacencies.add(node);
-		
 		
 		return adjacencies;
 	}
@@ -84,8 +86,18 @@ public class A_StarSearch {
 		return (lowestF);
 	}
 	
-	public void beginSearch (IntDimension start, IntDimension end){
+	public static double stepToGoal (A_StarNode node){
+		int steps = -1;
+		while (!node.equals(defaultParent)){
+			node = node.parent;
+			steps++;
+		}
+		return steps*MOVE;
+	}
+	
+	public A_StarNode beginSearch (IntDimension start, IntDimension end){
 		
+		resetNodeValues();
 		String startSring = start.X+","+start.Y;
 		String endString = end.X+","+end.Y;
 		A_StarNode startNode = nodes.get(startSring);
@@ -94,34 +106,27 @@ public class A_StarSearch {
 		open.put(startSring,startNode);
 		startNode.isInOpen = true;
 		
-		startNode.h_score = manhattanDistance(startNode.block.getGridPosition(), 
+		startNode.h_score = DistanceCalculator.manhattanDistance(startNode.block.getGridPosition(), 
 							endNode.block.getGridPosition());
 		startNode.g_score = 0;
 		startNode.f_score = startNode.g_score + startNode.h_score;
-		System.out.println("START = "+ start.X+ ","+ start.Y);
-		search (startNode,endNode);
+		
+		A_StarNode goalNode =  search (startNode,endNode);
+		currentIterations = 0;
+		return goalNode;
 	}
 	
-	private void search(A_StarNode current, A_StarNode goal){
+	private A_StarNode search(A_StarNode current, A_StarNode goal){
 		List <A_StarNode> adjacencies = getAdjacencies (current.block.getGridPosition());
 		for (A_StarNode node : adjacencies){
 			if (node.isInOpen == false) {
-				if (node.equals(goal)){
+				
+				if (node.equals(goal) || current.equals(goal)){
 					node.parent = current;
-					boolean d = false;
-					A_StarNode n = node;
-					while (d == false){
-						System.out.println("WOOOO = " + n.block.getGridPosition().X +
-								","+ n.block.getGridPosition().Y);
-						n = n.parent;
-						if (n == null){
-							d= true;
-						}
-					}
-					return;
+					return goal;
 				}
 				
-				node.h_score = manhattanDistance(node.block.getGridPosition(), 
+				node.h_score = DistanceCalculator.manhattanDistance(node.block.getGridPosition(), 
 								goal.block.getGridPosition());
 				node.g_score = current.g_score + MOVE;
 				node.f_score = node.g_score + node.h_score;
@@ -139,13 +144,14 @@ public class A_StarSearch {
 		}
 		
 		current.isClosed = true;
+		current.isInOpen = false;
 		open.remove(current.block.getGridPosition().X+","+
 				current.block.getGridPosition().Y);
-		if (currentIterations < maxIterations){currentIterations ++;}
-		else {return;}
-		System.out.println("iterations = " +currentIterations);
-		search(findLowestF(), goal);
-
+		if (currentIterations < maxIterations){
+			currentIterations ++;
+			search(findLowestF(), goal);
+		}//else {return null;}
+		return goal;
 	}
 	
 }
