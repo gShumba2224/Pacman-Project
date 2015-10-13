@@ -31,6 +31,18 @@ public class Grid  implements Serializable {
 		blockPixelDimensions = blockSize;
 	}
 	
+	public void resetGrid (){
+		for (Block block : blocks){
+			if (block instanceof Road){
+				updateRoad( (Road)block, Pill.STANDARDPILL);
+			}
+		}
+		updateRoad(((Road)this.getBlock(new IntDimension(1, 1))), Pill.POWERPILL);
+		updateRoad(((Road)this.getBlock(new IntDimension(13, 1))), Pill.POWERPILL);
+		updateRoad(((Road)this.getBlock(new IntDimension(13, 13))), Pill.POWERPILL);
+		updateRoad(((Road)this.getBlock(new IntDimension(1, 13))), Pill.POWERPILL);
+	}
+	
 	public void updateRoad (Road road, int pill){
 		road.setPill(pill);
 		drawPills (road);
@@ -60,7 +72,6 @@ public class Grid  implements Serializable {
 		else if (road.getPill() == Pill.GRAPE){gc.setFill(Color.GREEN);}
 		else if (road.getPill() == Pill.NONE){gc.setFill(Color.BLUE);}
 		gc.fillOval(startPos.X, startPos.Y,pillScale.X, pillScale.Y);
-		//drawGridExtras();
 	}
 
 	public void drawGridExtras (){

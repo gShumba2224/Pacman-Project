@@ -10,6 +10,8 @@ import PacmanGrid.Grid;
 import PacmanGrid.Pill;
 import PacmanGrid.Road;
 import Utils.IntDimension;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 
 public class Move  {
 	
@@ -33,16 +35,16 @@ public class Move  {
 			IntDimension oldLocation = agent.getLocation();
 			
 			if (agent instanceof Pacman){
-				if (road.getOccupiedBy() != null && agent.isScared() == true){
+				if (road.getOccupiedBy() instanceof Ghost && agent.isScared() == true){
 					//agent.setLives(agent.getLives() - 1);
 					result = Move.GOT_KILLED;
-				}else if ( road.getOccupiedBy() != null && agent.isScared() == false){
+				}else if (road.getOccupiedBy() instanceof Ghost && agent.isScared() == false){
 					//road.getOccupiedBy().setLives(agent.getLives() - 1);
 					result = Move.KILLED_ENEMY;
-				}else if (road.getOccupiedBy() == null && road.getPill() != Pill.NONE){
+				}else if ( road.getPill() != Pill.NONE ){
 					//game.setScore(game.getScore() + road.getPill());
-					grid.updateRoad(road, Pill.NONE);
 					result = road.getPill();
+					updateUI(grid,road, Pill.NONE);
 				}
 			} else {
 				if (road.getOccupiedBy() instanceof Pacman && agent.isScared() == false){
@@ -58,8 +60,10 @@ public class Move  {
 					result = Move.HITWALL;
 				}
 			}
-			agent.setLocation(road.getGridPosition());
-			animateAgent(agent, road);
+			int x = road.getGridPosition().X;
+			int y = road.getGridPosition().Y;
+			agent.setLocation(new IntDimension(x, y));
+			updateUI(agent, road);
 			road.setOccupiedBy(agent);
 			game.getGrid().getBlock(oldLocation).setOccupiedBy(null);
 		}catch (ClassCastException e){
@@ -68,7 +72,26 @@ public class Move  {
 		return result;
 	}
 	
+	private static void updateUI (Grid grid ,Road road, int pill){
+		
+		Platform.runLater(new Runnable() {
+		    public void run() {
+		    	grid.updateRoad(road, pill);
+		    }
+		});
+	}
+	
+	private static void updateUI (GenericAgent agent, Block toBlock){
+		
+		Platform.runLater(new Runnable() {
+		    public void run() {
+		    	animateAgent ( agent,  toBlock);
+		    }
+		});
+	}
+	
 	private static void animateAgent (GenericAgent agent, Block toBlock){
+
 		IntDimension toScreenLocation = new IntDimension (toBlock.getPixelDimensions().X * toBlock.getGridPosition().X,
 										toBlock.getPixelDimensions().Y * toBlock.getGridPosition().Y);
 		
@@ -81,5 +104,4 @@ public class Move  {
 		agent.getGraphic().setTranslateX(toScreenLocation.X);
 		agent.getGraphic().setTranslateY(toScreenLocation.Y);
 	}
-
 }

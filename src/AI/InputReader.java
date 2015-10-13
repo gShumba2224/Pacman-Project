@@ -22,14 +22,15 @@ import Utils.IntDimension;
 
 public class InputReader extends NeuralNetworkReader {
 	
-	ArtifactSearch search ;
-
+	ArtifactSearch search = null;
 	public Game game = null;
+	
 	public InputReader (Game game){
+		search = new ArtifactSearch(game.getGrid());
 		this.game = game;
 	}
 	
-	private List<Block> getAdjacentBlocks (IntDimension centre, Grid grid){
+	public List<Block> getAdjacentBlocks (IntDimension centre, Grid grid){
 		
 		List <Block> adjacentBlocks = new ArrayList<Block>();
 		Block block;
@@ -42,12 +43,12 @@ public class InputReader extends NeuralNetworkReader {
 		block = grid.getBlock(new IntDimension(x+1, y)); //right
 		adjacentBlocks.add(block);
 		
-		block = grid.getBlock(new IntDimension(x, y)); //top
+		block = grid.getBlock(new IntDimension(x, y-1)); //top
 		adjacentBlocks.add(block);
 		
-		block = grid.getBlock(new IntDimension(x, y-1)); //bottom
+		block = grid.getBlock(new IntDimension(x, y+1)); //bottom
 		adjacentBlocks.add(block);
-	
+		
 		return adjacentBlocks;
 	}
 	
@@ -56,61 +57,106 @@ public class InputReader extends NeuralNetworkReader {
 		NeuralLayer inputLayer = network.getInputLayer();
 		GenericAgent agent = (GenericAgent) parameters[0];
 		Game game = (Game) parameters[1];
-		IntDimension blockPos = new IntDimension (agent.getLocation().X,agent.getLocation().Y);
-		Block block;
-		blockPos.X = blockPos.X - 1;
-		block = game.getGrid().getBlock(new IntDimension(10,9)); //Get Left
-		setAgentInput(block, agent, inputLayer, 0);
 		
-		blockPos.X = blockPos.X + 2;
-		block = game.getGrid().getBlock(blockPos); //Get Right
-		setAgentInput(block, agent, inputLayer, 3);
-		
-		blockPos.X = blockPos.X -1; blockPos.Y = blockPos.Y - 1;
-		block = game.getGrid().getBlock(blockPos); //Get Top
-		setAgentInput(block, agent, inputLayer, 6);
-		
-		blockPos.Y = blockPos.Y + 2;
-		block = game.getGrid().getBlock(blockPos); //Get Bottom
-		setAgentInput(block, agent, inputLayer, 9);
-		
-		if (agent.isScared() == true){inputLayer.getNeurons().get(12).setOutputValue(0.0);
-		}else {inputLayer.getNeurons().get(12).setOutputValue(1.0);}		
+		setAgentInput(game, agent, inputLayer);
 	}
     
-    
-
-    
-    public void setAgentInput (Block block,GenericAgent agent, NeuralLayer inputLayer, int startIndex){
+    public void setAgentInput (Game game,GenericAgent agent, NeuralLayer inputLayer){
     	if (agent  instanceof Pacman){
-    		setPacmanInput (block, agent,  inputLayer, startIndex);
+    		setPacmanInput (game, agent,  inputLayer);
     	}else {
-    		setGhostInput (block, agent,  inputLayer, startIndex);
+    	setGhostInput (game, agent,  inputLayer);
     	}
     }
 	
-    public void setPacmanInput (Block block,GenericAgent agent, NeuralLayer inputLayer, int startIndex){
-		Map<Integer,Container> pillDistances = search.findNearestPill(game.getGrid(), block.getGridPosition(), 1000);
-    	
+    public void setPacmanInput (Game game,GenericAgent agent, NeuralLayer inputLayer){
 		List <Neuron> neurons = inputLayer.getNeurons();
-    	for (int i = 0; i < inputLayer.getNeurons().size();i = i+ 8){
-    		if ( block instanceof Road){// {neurons.get(i).setOutputValue(-1);}
-    			neurons.get(i).setOutputValue(1);
-    			double pillDist = pillDistances.get(block.getGridNumber()).distance;
-    			if (pillDist == 0){neurons.get(i+1).setOutputValue(1);}
-    			else{
-    				pillDist = 1-(pillDist /100);
-    				neurons.get(i+1).setOutputValue(pillDist);}
-    			pillDist = search.findPowerPillDistances(block);
+		List <Block> blocks = getAdjacentBlocks (agent.getLocation(), game.getGrid());
+		Map<Integer,Container> pillDistances =search.findNearestPill(game.getGrid(), agent.getLocation(), 1000);
+		List <Double> agentDistances = null;
+		int index = 0;
+		
+    	for (int i = 0; i < inputLayer.getNeurons().size();i = i+7){
+    		
+    		Block block = blocks.get(index);
+    		if ( block instanceof Road){
+    			// closetPill
+    			double distance = pillDistances.get(block.getGridNumber()).distance;
+    			if (distance > 0){
+    				distance = 1-(distance /100);
+    			}else{ distance = 1;}
+    			neurons.get(i).setOutputValue(distance);
+    			//closetPowerPill
+    			distance = search.findPowerPillDistances(block,game.getGrid());
+    			if (distance > 0){
+    				distance = 1-(distance /100);
+    			}else{ distance = 1;}
+    			neurons.get(i+1).setOutputValue(distance);
+    			
+    			//ghost distance
+    			agentDistances = search.findAgentDistances(game.getGhosts(), block);
+    			if (agent.isScared() == true){
+    				for (int j = 0; j < 5; j++){
+    					distance = agentDistances.get(j);
+    					if (distance != 0 ){distance = distance/100;}
+    					neurons.get(i+2+j).setOutputValue(distance);
+    				}
+    			}else{
+    				for (int j = 0; j < 5; j++){
+    					distance = agentDistances.get(j);
+    					if (distance == 0 ){distance = 1;}
+    					else {distance = 1-(distance/100);}
+    					neurons.get(i+2+j).setOutputValue(distance);
+    				}
+    			}
+    			
+    		}else{
+    			for (int j = 0; j < 7; j++){
+    				neurons.get(i+j).setOutputValue(0);
+    			}
     		}
+    		index++;
+    		if (index == 4){index = 0;}
     	}
-    		
-    		
-    	
     }
     
-    public void setGhostInput (Block block,GenericAgent agent, NeuralLayer inputLayer, int startIndex){
+    public void removeOwnDistance (List <Double> agentDistances ){
+		int count = 0;
+		double lowest = agentDistances.get(0);
+		for (int j = 0; j < agentDistances.size(); j++){
+			if (agentDistances.get(j) < lowest){
+				lowest = agentDistances.get(j);
+				count ++;
+			}
+		}
+		agentDistances.remove(count);
+    }
+    
+    public void setGhostInput (Game game,GenericAgent agent, NeuralLayer inputLayer){
 
+		List <Neuron> neurons = inputLayer.getNeurons();
+		List <Block> blocks = getAdjacentBlocks (agent.getLocation(), game.getGrid());
+		List <Double> agentDistances = null;
+		double distance =0.0;
+		
+		int index = 0;
+		for (int i = 0; i < inputLayer.getNeurons().size();i++){ 
+			Block block = blocks.get(index);
+			if (block instanceof Road){
+				agentDistances = search.findAgentDistances(game.getPacmen(), block);
+				distance = agentDistances.get(0);
+				for (double val : agentDistances){if (val < distance){distance = val;}}
+				
+				if (agent.isScared() == false){
+					if (distance > 0){distance = 1-(distance /100);}
+					else{ distance = 10;}
+				}else {distance = distance/100;}
+				neurons.get(i).setOutputValue(distance);
+			}else{
+				neurons.get(i).setOutputValue(-100);
+			}
+			index++;
+		}
     }
 
 }

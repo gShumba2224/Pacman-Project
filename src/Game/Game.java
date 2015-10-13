@@ -58,11 +58,12 @@ public class Game {
 	public void end(){
 	}
 	public void reset (int agentType){
-		if (agentType == GenericAgent.PACMAN){
-			score = 0;
-		}
-		IntDimension [] agentPos = new IntDimension[initialAgentPositions.get(agentType).size()];
-		initAgents(initialAgentPositions.get(agentType).toArray(agentPos),agentType);
+//		if (agentType == GenericAgent.PACMAN){
+//			score = 0;
+//			grid.resetGrid();
+//		}
+//		//IntDimension [] agentPos = new IntDimension[initialAgentPositions.get(agentType).size()];
+//		//initAgents(initialAgentPositions.get(agentType).toArray(agentPos),agentType);
 	}
 	
 	
