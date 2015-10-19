@@ -7,10 +7,10 @@ import java.util.Random;
 
 import com.sun.javafx.scene.traversal.Algorithm;
 
-import Actions.Move;
 import Agents.GenericAgent;
 import Agents.Ghost;
 import Game.Game;
+import Game.Move;
 import GeneticAlgorithm.Evolve;
 import GeneticAlgorithm.GeneticAlgorithm;
 import GeneticAlgorithm.Genome;
@@ -20,6 +20,7 @@ import Neurons.NeuralNetworkReader;
 import Neurons.Neuron;
 import PacmanGrid.Block;
 import PacmanGrid.Grid;
+import PacmanGrid.Pill;
 import PacmanGrid.Road;
 import Utils.IntDimension;
 import javafx.application.Platform;
@@ -59,15 +60,19 @@ public class AiSimulator implements Runnable{
 	
 	@Override
 	public void run() {
+		setStartPosition ();
 		for (int i = 0 ; i < generations; i++){
 			try {
 				System.out.println("GENERATION == WOOO" + i);
+				if (i >= 50 && (i%50) == 0){setStartPosition();}
 				simulateGeneration(runs, delay);
-				pacTemperature = (1-pacCoolRate)*pacTemperature;
-				ghostTemperature = (1-ghostCoolRate)*ghostTemperature;
+				pacTemperature = pacTemperature-pacCoolRate;
+				ghostTemperature = ghostTemperature-ghostCoolRate;
+				if (pacTemperature <= 0){pacTemperature =1;}
+				if (ghostTemperature <= 0){ghostTemperature =1;}
 				
 				pacAlgorithm.newGeneration(pacEliteSample, pacBoltzSample, pacTemperature,pacAlgorithm.getPopulation().size());
-				ghostAlgorithm.newGeneration(ghostEliteSample, ghostBoltzSample,ghostTemperature,pacAlgorithm.getPopulation().size());
+				ghostAlgorithm.newGeneration(ghostEliteSample, ghostBoltzSample,ghostTemperature,ghostAlgorithm.getPopulation().size());
 			} catch (DuplicateNeuronID_Exception e) {}
 		}
 	}
@@ -94,33 +99,61 @@ public class AiSimulator implements Runnable{
 	}		
 
 	
-	public void simulateGame(Genome pacGenome,Genome ghostGenome,int run,long delay) throws DuplicateNeuronID_Exception{
+	public void simulateGame(int run,long delay) throws DuplicateNeuronID_Exception{
 		if (run == 0){return;}
 		for (GenericAgent agent : game.getPacmen()){
-			play (pacNetwork,agent,pacAlgorithm,pacGenome);
+			for (int i = 0; i < agent.getSpeed(); i++){
+				play (pacNetwork,pacAlgorithm,agent);}
 		}
 		delay(delay);
 		for (GenericAgent agent : game.getGhosts()){
-			play (ghostNetwork,agent,ghostAlgorithm,ghostGenome);
+			for (int i = 0; i < agent.getSpeed(); i++){ 
+				play (ghostNetwork,ghostAlgorithm,agent);}
 		}
 		run--;
-		simulateGame( pacGenome,ghostGenome ,run, delay);
+		simulateGame(run, delay);
 	}
 	
 	public void simulateGeneration (int runs, long delay) throws DuplicateNeuronID_Exception{
-		resetGame();
-		for (int i = 0; i < pacAlgorithm.getPopulation().size(); i++ ){
-			Genome pacGenome = pacAlgorithm.getPopulation().get(i);
-			Genome ghostGenome = ghostAlgorithm.getPopulation().get(i);
-			simulateGame(pacGenome, ghostGenome, runs, delay);
+		int pacIndex = 0;
+		int ghostIndex = 0;
+		
+		while (pacIndex < pacAlgorithm.getPopulation().size() 
+				&& ghostIndex < ghostAlgorithm.getPopulation().size()){
+			
+			Platform.runLater(new Runnable() {
+			    public void run() {game.reset();}
+			});
+			
+			delay(30);
+			for (GenericAgent agent: game.getPacmen()){
+				Genome genome = pacAlgorithm.getPopulation().get(pacIndex);
+				agent.setController(genome);
+				pacIndex++;
+			}
+			for (GenericAgent agent: game.getGhosts()){
+				Genome genome = ghostAlgorithm.getPopulation().get(ghostIndex);
+				agent.setController(genome);
+				ghostIndex++;
+			}
+			simulateGame(runs, delay);
 		}
 	}
 	
-	public void play (NeuralNetwork network, GenericAgent agent, GeneticAlgorithm algorithm,Genome genome) throws DuplicateNeuronID_Exception{
+	public void play (NeuralNetwork network,GeneticAlgorithm algorithm,GenericAgent agent) throws DuplicateNeuronID_Exception{
+		
 		network.getInputReader().readInputs (network, agent, game);
-		network.setWeights(genome);
+		network.setWeights(agent.getController());
 		network.update();
-		algorithm.evaluateGenome(genome,network, game, agent);
+		if (agent instanceof Ghost){
+			int index = 0;
+			for (Neuron neuron : network.getInputLayer().getNeurons()){
+				double val = neuron.getOutputValue();
+				network.getOutputLayer().getNeurons().get(index).setOutputValue(val);
+				index++;
+			}
+		}
+		algorithm.evaluateGenome(agent.getController(),network,game,agent);
 	}
 	
 	private void delay(long delay){
@@ -131,151 +164,35 @@ public class AiSimulator implements Runnable{
 		}
 	}
 	
-	private void resetGame (){
-		game.getGrid().resetGrid();
-		game.setScore(0);
-		randomlyPositionAgents (game.getPacmen(),8,14);
-		randomlyPositionAgents (game.getGhosts(),0,6);
+	private void setStartPosition (){
+		Block block = randStartPosition();
+		IntDimension startPos = new IntDimension(block.getGridPosition().X,block.getGridPosition().Y);
+		for (GenericAgent agent : game.getPacmen()){
+			agent.setResetPos(new IntDimension(startPos.X, startPos.Y));
+		}
+		System.out.println("pac rest =" + block.getGridPosition().X+","+block.getGridPosition().Y);
+		block = randStartPosition();
+		startPos = new IntDimension(block.getGridPosition().X,block.getGridPosition().Y);
+		for (GenericAgent agent : game.getGhosts()){
+			agent.setResetPos(new IntDimension(startPos.X, startPos.Y));
+		}
+		System.out.println("ghost rest =" + block.getGridPosition().X+","+block.getGridPosition().Y);
 	}
 	
-	private void randomlyPositionAgents (List<GenericAgent> agentList, int min, int max){
+	private Block randStartPosition (){
+		boolean found = false;
 		Random rand = new Random ();
 		Block block = null;
-		boolean found = false;
-
-		for (GenericAgent agent :agentList){
-			found = false;
-			while (found == false){
-				IntDimension location = new IntDimension(rand.nextInt(14), rand.nextInt((max-min)+1)+min);
-				block = game.getGrid().getBlock(location);
-				if (block instanceof Road){
-					Move.moveAgent(agent, game,block.getGridPosition());
-					found = true;
-				}
-			}
+		while (found == false){
+			int x = rand.nextInt(14);
+			int y = rand.nextInt(13);
+			block = game.getGrid().getBlock(new IntDimension(x, y));
+			if (block instanceof Road &&((Road)block).getOccupiedBy()==null &&
+					((Road)block).getPill()!= Pill.POWERPILL){found = true;}
 		}
+		return block;
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-//	public AiMonitor monitor = null;
-//	public Thread thread ;
-//	private int eliteSampleSize;
-//	private int boltzSampleSize;
-//	private double boltzTemperature;
-//	private double boltzCoolRate = 1.0;
-//	private int generations;
-//	private int runsPerGenome;
-//	private int playersPerGame;
-//	private int agentType;
-//	private Game game;
-//	private GeneticAlgorithm algorithm;
-//	private NeuralNetwork network;
-//	private ArrayList <ArrayList <Genome>> genomes = new ArrayList<ArrayList <Genome>> ();
-//	
-//	public AiSimulator (int agentType ,AiMonitor monitor, GeneticAlgorithm algorithm
-//								,Game game, NeuralNetwork network, int playersPerGame){
-//		this.monitor = monitor;
-//		this.agentType = agentType;
-//		this.algorithm = algorithm;
-//		this.game = game;
-//		this.network =  network;
-//		this.playersPerGame = playersPerGame;
-//		divideGenomesToGames();
-//		replacePopulation();
-//	}
-//	
-//	public void setSimObjects ( NeuralNetwork network,GeneticAlgorithm algorithm ,Game game,int agentType){
-//		this.game = game;
-//		this.algorithm = algorithm;
-//		this.network = network;
-//		this.agentType = agentType;
-//	}
-//	
-//	public void setSimulationProperties (int numGenerations, int numRuns){
-//		this.generations = numGenerations;
-//		this.runsPerGenome = numRuns;
-//	}
-//	
-//	public void setSelectionProperties(int eliteSampleSize,int boltzSampleSize,double boltzTemperature, double boltzCoolRate){
-//		this.eliteSampleSize = eliteSampleSize;
-//		this.boltzSampleSize = boltzSampleSize;
-//		this.boltzTemperature = boltzTemperature;
-//		this.boltzCoolRate = boltzCoolRate;
-//	}
-//	
-//	public void divideGenomesToGames(){
-//		int totalGames  = algorithm.getPopulation().size()/playersPerGame;
-//		for (int i = 0; i < totalGames; i++){
-//			ArrayList <Genome> genomeList = new ArrayList <Genome> ();
-//			genomes.add(genomeList);
-//		}
-//	}
-//	
-//	public void replacePopulation(){
-//		int genomeIndex = 0;
-//		int count = 0;
-//		for (int i = 0; i < genomes.size() ; i++){
-//			genomes.get(i).clear();
-//			while ( count < playersPerGame){
-//				genomes.get(i).add(algorithm.getPopulation().get(genomeIndex));
-//				genomeIndex++;
-//				count ++;
-//			}
-//			count = 0;
-//		}
-//	}
-//	
-//	public void startThread(String threadName){
-//		thread = new Thread (this, threadName);
-//		thread.start();
-//	}
-//
-//
-//
-//	@Override
-//	public void run() {
-//		while (this.generations > algorithm.getGeneration()){
-//			replacePopulation();
-//			for (int i = 0; i < genomes.size(); i++){
-//				int index = 0;
-//				int totalRuns = 1000;//runsPerGenome * genomes.get(i).size();
-//				int runs = 0;
-//				boolean newGame = false;
-//				while (runs <= totalRuns){
-//					Genome genome = genomes.get(i).get(index);
-//					
-//					if (runs ==( totalRuns-1)){newGame = true;}
-//					else {newGame =false;}
-//					
-//					try {monitor.play(network, algorithm, genome, index, game, agentType, newGame);
-//					} catch (DuplicateNeuronID_Exception e) {e.printStackTrace();}
-//					index++;
-//					if (index >= genomes.get(i).size()){index = 0;}
-//					runs ++;
-//				}
-//			}
-//			
-////			boltzTemperature = boltzTemperature *(1 - boltzCoolRate);
-////			if (boltzTemperature < 1.0){boltzTemperature = 1.0;}
-////			algorithm.newGeneration( eliteSampleSize , boltzSampleSize, boltzTemperature, algorithm.getPopulation().size());
-////			System.out.println("currentGen = " + algorithm.getGeneration());
-//		}
-//	}
-//
-//	public NeuralNetwork getNetwork() {
-//		return network;
-//	}
-//
-//	public void setNetwork(NeuralNetwork network) {
-//		this.network = network;
-//	}
 	
 	
 }
+

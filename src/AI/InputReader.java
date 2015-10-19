@@ -81,7 +81,10 @@ public class InputReader extends NeuralNetworkReader {
     		Block block = blocks.get(index);
     		if ( block instanceof Road){
     			// closetPill
-    			double distance = pillDistances.get(block.getGridNumber()).distance;
+    			double distance =-1;
+    			try{
+    				 distance = pillDistances.get(block.getGridNumber()).distance;
+    			}catch (NullPointerException e){distance = -1;}
     			if (distance > 0){
     				distance = 1-(distance /100);
     			}else{ distance = 1;}
@@ -109,7 +112,6 @@ public class InputReader extends NeuralNetworkReader {
     					neurons.get(i+2+j).setOutputValue(distance);
     				}
     			}
-    			
     		}else{
     			for (int j = 0; j < 7; j++){
     				neurons.get(i+j).setOutputValue(0);
@@ -153,7 +155,7 @@ public class InputReader extends NeuralNetworkReader {
 				}else {distance = distance/100;}
 				neurons.get(i).setOutputValue(distance);
 			}else{
-				neurons.get(i).setOutputValue(-100);
+				neurons.get(i).setOutputValue(-1);
 			}
 			index++;
 		}

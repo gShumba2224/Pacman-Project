@@ -2,6 +2,7 @@ package Agents;
 
 import java.io.Serializable;
 
+import GeneticAlgorithm.Genome;
 import Utils.IntDimension;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -11,11 +12,13 @@ public class GenericAgent implements Serializable {
 	public static  int PACMAN = 0;
 	public static int GHOST = 1;
 
-	private IntDimension location;
+	private IntDimension location = new IntDimension(0, 0);
 	private ImageView graphic;
-	private boolean isScared;
+	protected boolean isScared;
 	private int lives = 1;
 	private int speed = 1;
+	private IntDimension resetPos = null;
+	private Genome controller = null;
 
 	public GenericAgent (Image image){
 		graphic = new ImageView (image);
@@ -53,4 +56,17 @@ public class GenericAgent implements Serializable {
 	public void setLives(int lives) {
 		this.lives = lives;
 	}
+	public IntDimension getResetPos() {
+		return resetPos;
+	}
+	public void setResetPos(IntDimension resetPos) {
+		this.resetPos = resetPos;
+	}
+	public Genome getController() {
+		return controller;
+	}
+	public void setController(Genome controller) {
+		this.controller = controller;
+	}
+	
 }

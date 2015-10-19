@@ -94,10 +94,7 @@ public class ArtifactSearch {
 		Map <Integer,Container> distanceMap = new HashMap<Integer,Container>();
 		
 		growBounds ( grid,pillBlocks,maxIterations,start, start);
-		if (pillBlocks.size() == 0) {
-			System.out.println("nuffffffffffffffin");
-			return null;
-		}
+		if (pillBlocks.size() == 0) {return null;}
 	
 		for (Block block : pillBlocks){
 			for (Block moveToBlock : moveToBlocks){
@@ -117,9 +114,6 @@ public class ArtifactSearch {
 		}
 		
 		getExactDistance (distanceMap);
-		for (Integer i : distanceMap.keySet()){
-			Container c = distanceMap.get(i);
-		}
 		return distanceMap;
 	}
 	
@@ -127,11 +121,16 @@ public class ArtifactSearch {
 		Iterator <Entry<Integer,Container>> it = distanceMap.entrySet().iterator();
 		while (it.hasNext()){
 			Entry<Integer, Container> entry = it.next();
-			A_StarNode node = aStar.beginSearch(entry.getValue().from.getGridPosition(), 
-								entry.getValue().to.getGridPosition());
 			
-			if (node == null)entry.getValue().distance = entry.getValue().distance * A_StarSearch.MOVE;
-			entry.getValue().distance = A_StarSearch.stepToGoal(node);
+			if (entry.getValue().from.equals(entry.getValue().to) == true){
+				entry.getValue().distance = 0;
+			}else{
+				A_StarNode node = aStar.beginSearch(entry.getValue().from.getGridPosition(), 
+									entry.getValue().to.getGridPosition());
+				
+				if (node == null)entry.getValue().distance = entry.getValue().distance * A_StarSearch.MOVE;
+				entry.getValue().distance = A_StarSearch.stepToGoal(node);
+			}
 		}
 	}
 	
@@ -153,7 +152,7 @@ public class ArtifactSearch {
 		IntDimension[] powerPills = {new IntDimension(1, 1), new IntDimension(13, 1),
 									new IntDimension(1, 13), new IntDimension(13, 13)};
 		
-		double lowestDist = -1;
+		double lowestDist = -1.0;
 		for (int i = 0; i < powerPills.length; i++){
 			double distance = 0.0;
 			if ( ((Road )grid.getBlock(powerPills[i])).getPill() != Pill.NONE){

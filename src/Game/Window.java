@@ -3,7 +3,6 @@ package Game;
 import java.io.File;
 import java.io.IOException;
 
-import Actions.Move;
 import Agents.GenericAgent;
 import Agents.Pacman;
 import PacmanGrid.Grid;

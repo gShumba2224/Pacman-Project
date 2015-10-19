@@ -7,10 +7,12 @@ public class Pacman extends GenericAgent {
 	
 	public Pacman (){
 		setScared (true);
+		setSpeed(3);
 	}
 	public Pacman (Image image){
 		super (image);
 		setScared (true);
+		setSpeed(3);
 	}
 	
 	
