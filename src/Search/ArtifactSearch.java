@@ -88,7 +88,6 @@ public class ArtifactSearch {
 	}
 	
 	public Map <Integer,Container>  findNearestPill (Grid grid, IntDimension start, int maxIterations){
-		
 		List <Block> moveToBlocks = getValidBlocks(grid, start);
 		List <Block> pillBlocks = new ArrayList <Block>();
 		Map <Integer,Container> distanceMap = new HashMap<Integer,Container>();
@@ -137,18 +136,20 @@ public class ArtifactSearch {
 	public List<Double> findAgentDistances (List<GenericAgent> agents, Block from){
 		List<Double> distanceMap = new ArrayList <Double> ();
 		for (GenericAgent agent : agents){
-			double distance = 0.0;
-			A_StarNode node = aStar.beginSearch(from.getGridPosition(), agent.getLocation());
-			if (node == null){
-				distance = DistanceCalculator.manhattanDistance(from.getGridPosition(),
-								agent.getLocation())*A_StarSearch.MOVE;
-			}else{distance = A_StarSearch.stepToGoal(node);}
-			distanceMap.add(distance);
+			if (agent.isDead() == false){
+				double distance = 0.0;
+				A_StarNode node = aStar.beginSearch(from.getGridPosition(), agent.getLocation());
+				if (node == null){
+					distance = DistanceCalculator.manhattanDistance(from.getGridPosition(),
+									agent.getLocation())*A_StarSearch.MOVE;
+				}else{distance = A_StarSearch.stepToGoal(node);}
+				distanceMap.add(distance);
+			}
 		}
 		return distanceMap;
 	}
 	
-	public double findPowerPillDistances(Block block,Grid grid){
+	public Double findPowerPillDistances(Block block,Grid grid){
 		IntDimension[] powerPills = {new IntDimension(1, 1), new IntDimension(13, 1),
 									new IntDimension(1, 13), new IntDimension(13, 13)};
 		

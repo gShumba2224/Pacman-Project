@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CountDownLatch;
 
 import com.sun.javafx.scene.traversal.Algorithm;
 
@@ -43,6 +44,11 @@ public class AiSimulator implements Runnable{
 	private int ghostBoltzSample;
 	private double ghostTemperature;
 	private double ghostCoolRate;
+	
+	private IntDimension ghostMax;
+	private IntDimension ghostMin;
+	private IntDimension pacMax;
+	private IntDimension pacMin;
 	
 
 	public  AiSimulator(Game game,NeuralNetwork pacNetwork,GeneticAlgorithm pacAlgorithm,
@@ -102,13 +108,23 @@ public class AiSimulator implements Runnable{
 	public void simulateGame(int run,long delay) throws DuplicateNeuronID_Exception{
 		if (run == 0){return;}
 		for (GenericAgent agent : game.getPacmen()){
-			for (int i = 0; i < agent.getSpeed(); i++){
-				play (pacNetwork,pacAlgorithm,agent);}
+			if ( agent.isDead() == false){
+				for (int i = 0; i < agent.getSpeed(); i++){
+					if (game.getGrid().getPillsLeft() == 0){game.reset();}
+					play (pacNetwork,pacAlgorithm,agent);}
+			}
 		}
 		delay(delay);
 		for (GenericAgent agent : game.getGhosts()){
-			for (int i = 0; i < agent.getSpeed(); i++){ 
-				play (ghostNetwork,ghostAlgorithm,agent);}
+			System.out.println("is dead = "+ agent.isDead());
+			if (agent.isDead() == false){
+				if (game.getDeadPacmenCount() == game.getPacmen().size()){
+					setStartPosition(game.getPacmen(), pacMin, pacMax, true);
+					game.reset();
+				}
+				for (int i = 0; i < agent.getSpeed(); i++){ 
+					play (ghostNetwork,ghostAlgorithm,agent);}
+			}
 		}
 		run--;
 		simulateGame(run, delay);
@@ -121,9 +137,14 @@ public class AiSimulator implements Runnable{
 		while (pacIndex < pacAlgorithm.getPopulation().size() 
 				&& ghostIndex < ghostAlgorithm.getPopulation().size()){
 			
+			final CountDownLatch latch = new CountDownLatch(1);
 			Platform.runLater(new Runnable() {
-			    public void run() {game.reset();}
-			});
+			    public void run() {
+			    	game.reset();
+			    	latch.countDown();}
+				});
+			try {latch.await();} 
+			catch (InterruptedException e) {e.printStackTrace();}
 			
 			delay(30);
 			for (GenericAgent agent: game.getPacmen()){
@@ -141,10 +162,7 @@ public class AiSimulator implements Runnable{
 	}
 	
 	public void play (NeuralNetwork network,GeneticAlgorithm algorithm,GenericAgent agent) throws DuplicateNeuronID_Exception{
-		
 		network.getInputReader().readInputs (network, agent, game);
-		network.setWeights(agent.getController());
-		network.update();
 		if (agent instanceof Ghost){
 			int index = 0;
 			for (Neuron neuron : network.getInputLayer().getNeurons()){
@@ -152,6 +170,9 @@ public class AiSimulator implements Runnable{
 				network.getOutputLayer().getNeurons().get(index).setOutputValue(val);
 				index++;
 			}
+		}else{
+			network.setWeights(agent.getController());
+			network.update();
 		}
 		algorithm.evaluateGenome(agent.getController(),network,game,agent);
 	}
@@ -164,28 +185,51 @@ public class AiSimulator implements Runnable{
 		}
 	}
 	
-	private void setStartPosition (){
-		Block block = randStartPosition();
-		IntDimension startPos = new IntDimension(block.getGridPosition().X,block.getGridPosition().Y);
-		for (GenericAgent agent : game.getPacmen()){
-			agent.setResetPos(new IntDimension(startPos.X, startPos.Y));
+	private void setAgentSides (){
+		double side = new Random().nextDouble();
+		if (side > 0.5){
+			ghostMin = new IntDimension(0,0);
+			ghostMax = new IntDimension(14,6);
+			pacMin = new IntDimension(0,7);
+			pacMax = new IntDimension(14,14);
+		}else{
+			pacMin = new IntDimension(0,0);
+			pacMax = new IntDimension(14,6);
+			ghostMin = new IntDimension(0,7);
+			ghostMax = new IntDimension(14,14);
 		}
-		System.out.println("pac rest =" + block.getGridPosition().X+","+block.getGridPosition().Y);
-		block = randStartPosition();
-		startPos = new IntDimension(block.getGridPosition().X,block.getGridPosition().Y);
-		for (GenericAgent agent : game.getGhosts()){
-			agent.setResetPos(new IntDimension(startPos.X, startPos.Y));
-		}
-		System.out.println("ghost rest =" + block.getGridPosition().X+","+block.getGridPosition().Y);
 	}
 	
-	private Block randStartPosition (){
+	private void setStartPosition (){
+		setAgentSides();
+		setStartPosition(game.getGhosts(), ghostMin, ghostMax, false);
+		setStartPosition(game.getPacmen(), pacMin, pacMax, true);
+	}
+	private void setStartPosition (List <GenericAgent> agents,IntDimension min,
+									IntDimension max,boolean doSamePosition){
+
+		Block block = randStartPosition(min.X, max.X, min.Y, max.Y);
+		IntDimension startPos = new IntDimension(block.getGridPosition().X,block.getGridPosition().Y);
+		GenericAgent agent = agents.get(0);
+		agent.setResetPos(new IntDimension(startPos.X, startPos.Y));
+		
+		for (int i = 1; i < agents.size(); i++){
+			agent = agents.get(i);
+			if ( doSamePosition == false){
+				block = randStartPosition(min.X, max.X, min.Y, max.Y);
+				startPos = new IntDimension(block.getGridPosition().X,block.getGridPosition().Y);
+			}
+			agent.setResetPos(new IntDimension(startPos.X, startPos.Y));
+		}
+	}
+	
+	private Block randStartPosition (int minX, int maxX, int minY, int maxY){
 		boolean found = false;
 		Random rand = new Random ();
 		Block block = null;
 		while (found == false){
-			int x = rand.nextInt(14);
-			int y = rand.nextInt(13);
+			int x = rand.nextInt((maxX - minX) + 1) + minX;
+			int y = rand.nextInt((maxY - minY) + 1) + minY;
 			block = game.getGrid().getBlock(new IntDimension(x, y));
 			if (block instanceof Road &&((Road)block).getOccupiedBy()==null &&
 					((Road)block).getPill()!= Pill.POWERPILL){found = true;}

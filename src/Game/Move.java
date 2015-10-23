@@ -1,9 +1,13 @@
 package Game;
 
 
+import java.lang.reflect.Method;
+import java.util.concurrent.CountDownLatch;
+
 import Agents.GenericAgent;
 import Agents.Ghost;
 import Agents.Pacman;
+import GeneticAlgorithm.Gene;
 import PacmanGrid.Block;
 import PacmanGrid.Grid;
 import PacmanGrid.Pill;
@@ -21,7 +25,8 @@ public class Move  {
 	public static final int GOT_POWER_PILL = Pill.POWERPILL;
 	public static final int KILLED_ENEMY = 4;
 	public static final int GOT_NONE_PILL = 0;
-	public static final int SCARE_DURATION = 20;
+	public static final int SCARE_DURATION = 40;
+	private static final UpdateUI uiUpdater = new UpdateUI();
 
 	private static GenericAgent killer = null;
 	private  static GenericAgent victim = null;
@@ -32,6 +37,7 @@ public class Move  {
 		
 		Grid grid = game.getGrid();
 		int result = Move.GOT_NONE_PILL;
+		if (agent.isDead() == true){return result;}
 		try{
 			Road road = (Road)grid.getBlock(location);
 			if (agent instanceof Pacman){
@@ -43,11 +49,15 @@ public class Move  {
 				}else if (road.getPill() != Pill.NONE  ){
 					if (road.getPill() == Pill.POWERPILL){
 						game.setScaredGhostsDuration(SCARE_DURATION);
-						 scareAgents ( game,GenericAgent.PACMAN, false);
-						 scareAgents ( game,GenericAgent.GHOST, true);
+						uiUpdater.doUpdate(UpdateUI.CHANGE_SCARE_STATE,
+								game,null, null, GenericAgent.PACMAN, false);
+						uiUpdater.doUpdate(UpdateUI.CHANGE_SCARE_STATE,
+								game,null, null, GenericAgent.GHOST, true);
 					}
 					result = road.getPill();
-					updateUI(grid,road, Pill.NONE);
+					game.setScore(game.getScore() + result);
+					uiUpdater.doUpdate(UpdateUI.UPDATE_ROAD,game, null, road, Pill.NONE, null);
+					//updateUI(grid,road, Pill.NONE);
 				}
 			} else {
 				if (road.getOccupiedBy() instanceof Pacman && agent.isScared() == false){
@@ -64,15 +74,18 @@ public class Move  {
 			 result = Move.HITWALL;}
 		return result;
 	}
+
 	
 	public static void resetPosition (Game game ,GenericAgent agent){
 		Block block = game.getGrid().getBlock(new IntDimension(agent.getResetPos().X, agent.getResetPos().Y));
 		IntDimension oldLocation = agent.getLocation();
 		if (block instanceof Road){
-			updateUI(game.getGrid(), ((Road)block), Pill.NONE);
-			updateUI(agent,block);
+			uiUpdater.doUpdate(UpdateUI.UPDATE_ROAD,game, null, ((Road)block), Pill.NONE, null);
+			//updateUI(game.getGrid(), ((Road)block), Pill.NONE);
+			uiUpdater.doUpdate(UpdateUI.ANIMATE_AGENT, null, agent, block, null, null);
+			//updateUI(agent,block);
 			agent.setLocation(new IntDimension(agent.getResetPos().X, agent.getResetPos().Y));
-			game.getGrid().getBlock(oldLocation).setOccupiedBy(null);
+			if (oldLocation != null){game.getGrid().getBlock(oldLocation).setOccupiedBy(null);}
 		}
 	}
 	
@@ -82,13 +95,15 @@ public class Move  {
 		if (result == Move.GOT_KILLED ){
 			Move.killer = road.getOccupiedBy();
 			Move.victim = agent;
-			resetPosition(game, Move.victim);
 			road.setOccupiedBy(Move.killer);
+			Move.victim.decrementLife();
+			if (Move.victim.isDead() == false) {resetPosition(game, Move.victim);}
 		}else if (result == Move.KILLED_ENEMY){
 			Move.killer = agent;
 			Move.victim = road.getOccupiedBy();
-			resetPosition(game, Move.victim);
 			road.setOccupiedBy(Move.killer);
+			Move.victim.decrementLife();
+			if (Move.victim.isDead() == false) {resetPosition(game, Move.victim);}
 		}
 		if (result != Move.GOT_KILLED){
 			road.setOccupiedBy(agent);
@@ -96,42 +111,10 @@ public class Move  {
 			int y = road.getGridPosition().Y;
 			IntDimension oldLocation = agent.getLocation();
 			agent.setLocation(new IntDimension(x, y));
-			updateUI(agent, road);
+			uiUpdater.doUpdate(UpdateUI.ANIMATE_AGENT, null, agent, road, null, null);
+			//updateUI(agent, road);
 			game.getGrid().getBlock(oldLocation).setOccupiedBy(null);
 		}
-	}
-	
-	private static void updateUI (Grid grid ,Road road, int pill){
-		
-		Platform.runLater(new Runnable() {
-		    public void run() {
-		    	grid.updateRoad(road, pill);
-		    }
-		});
-	}
-	
-	private static void updateUI (GenericAgent agent, Block toBlock){
-		
-		Platform.runLater(new Runnable() {
-		    public void run() {
-		    	animateAgent ( agent,  toBlock);
-		    }
-		});
-	}
-	
-	private static void animateAgent (GenericAgent agent, Block toBlock){
-
-		IntDimension toScreenLocation = new IntDimension (toBlock.getPixelDimensions().X * toBlock.getGridPosition().X,
-										toBlock.getPixelDimensions().Y * toBlock.getGridPosition().Y);
-		
-//		IntDimension currentScreenLocation = new IntDimension (agent.getLocation().X * toBlock.getPixelDimensions().X,
-//											agent.getLocation().Y * toBlock.getPixelDimensions().Y);
-//		
-//		IntDimension distance = new IntDimension (toScreenLocation.X - currentScreenLocation.X,
-//								toScreenLocation.Y - currentScreenLocation.Y);
-		
-		agent.getGraphic().setTranslateX(toScreenLocation.X);
-		agent.getGraphic().setTranslateY(toScreenLocation.Y);
 	}
 	
 	private static void ghostScare (Game game, GenericAgent pacman){
@@ -141,22 +124,16 @@ public class Move  {
 				duration = duration - 1;
 				game.setScaredGhostsDuration(duration);
 			}else{
-				 scareAgents ( game,GenericAgent.PACMAN, true);
-				 scareAgents ( game,GenericAgent.GHOST, false);
+				 //scareAgents ( game,GenericAgent.PACMAN, true);
+				uiUpdater.doUpdate(UpdateUI.CHANGE_SCARE_STATE,game,null,null,GenericAgent.PACMAN,true);
+				uiUpdater.doUpdate(UpdateUI.CHANGE_SCARE_STATE,game,null,null,GenericAgent.GHOST,false);
+
+				 //scareAgents ( game,GenericAgent.GHOST, false);
 				 game.setScaredGhostsDuration(0);
 			}
 		}
 	}
 	
-	private static void scareAgents (Game game, int agentType, boolean state){
-		Platform.runLater( new Runnable() {
-			@Override
-			public void run() {
-				for (GenericAgent agent : game.getAgents().get(agentType)){
-					agent.setScared(state);}
-			}
-		});
-	}
 
 	public static GenericAgent getKiller() {
 		return killer;

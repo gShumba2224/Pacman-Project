@@ -25,7 +25,7 @@ public class AgentEvolver2 extends AgentEvolver {
 	protected Integer outputToDirection (NeuralNetwork network){
 		List <Double> outputs = network.getOutputs();
 		if (outputs.get(0) > outputs.get(1) ){
-			return EVADE;
+			return EAT;
 		}else{
 			return EAT;
 		}
@@ -60,7 +60,7 @@ public class AgentEvolver2 extends AgentEvolver {
 				result = Move.moveAgent(agent, game, reader.getSafeBlock().getGridPosition());}
 				else  { result = Move.moveAgent(agent, game, reader.getPointBlock().getGridPosition());}
 				evaluatePacman(result,agent);
-				
+
 			}
 			@Override
 			public void preEvolutionActions (){

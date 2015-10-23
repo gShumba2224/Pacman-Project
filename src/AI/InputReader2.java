@@ -56,7 +56,7 @@ public class InputReader2 extends InputReader{
 					System.out.println("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn");
 				}
 				
-				if (safeBlock == null || safeScore < safeBest ){
+				if (safeBlock == null || safeScore > safeBest ){
 					safeBlock = block;
 					safeBest = safeScore;}
 				if (pointBlock == null || pointScore < pointBest ){

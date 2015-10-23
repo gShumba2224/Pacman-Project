@@ -9,6 +9,10 @@ import javafx.scene.image.ImageView;
 
 public class GenericAgent implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 772949724872181769L;
 	public static  int PACMAN = 0;
 	public static int GHOST = 1;
 
@@ -19,11 +23,34 @@ public class GenericAgent implements Serializable {
 	private int speed = 1;
 	private IntDimension resetPos = null;
 	private Genome controller = null;
+	private boolean isDead = false;
+	private String name;
 
 	public GenericAgent (Image image){
 		graphic = new ImageView (image);
 	}
 	public GenericAgent (){
+	}
+	
+	public void kill (){
+		graphic.setOpacity(0.0);
+		location = null;
+		resetPos = null;
+		lives = 0;
+		isDead = true;
+	}
+	
+	public void revive (IntDimension resetPos, int lives){
+		graphic.setOpacity(1);
+		this.resetPos = resetPos;
+		this.lives = lives;
+		isDead = false;
+	}
+	
+	public void decrementLife (){
+		lives --;
+		if (lives < 0){kill();}
+		System.out.println("LIVES LEFT = " + lives);
 	}
 	
 	public IntDimension getLocation() {
@@ -56,6 +83,7 @@ public class GenericAgent implements Serializable {
 	public void setLives(int lives) {
 		this.lives = lives;
 	}
+	
 	public IntDimension getResetPos() {
 		return resetPos;
 	}
@@ -68,5 +96,16 @@ public class GenericAgent implements Serializable {
 	public void setController(Genome controller) {
 		this.controller = controller;
 	}
+	public boolean isDead() {
+		return isDead;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	
 	
 }

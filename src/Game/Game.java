@@ -23,6 +23,8 @@ public class Game {
 	private Grid grid;
 	private long duration = 1000*30;
 	private int scaredGhostsDuration = 0;
+	private static final int PACMAN_LIVES = 100;
+	private static final int GHOST_LIVES = 1; 
 	
 	
 	public Game() throws IOException{
@@ -45,10 +47,11 @@ public class Game {
 	public void end(){
 	}
 	
-	public void reset (){
+	public void  reset (){
 		score = 0;
 		resetAgents();
 		grid.resetGrid();
+		System.out.println("reset called wooooo");
 	}
 	
 	
@@ -64,12 +67,14 @@ public class Game {
 		for (int i = 0 ; i < numGhosts ; i++){
 			ghost = new Ghost (new Image (new File ("C:\\Users\\GMAN\\Desktop\\Temp Stuff\\agentRedGhost.png").toURI().toString()));
 			ghost.setResetPos(new IntDimension(1, 2));
+			ghost.setLives(GHOST_LIVES);
 			agents.get(GenericAgent.GHOST).add(ghost);
 		}
 		
 		for (int i = 0 ; i < numPacmen ; i++){
 			pacman = new Pacman (new Image (new File ("C:\\Users\\GMAN\\Desktop\\Temp Stuff\\agentPacman.png").toURI().toString()));
 			pacman.setResetPos(new IntDimension(13, 2));
+			pacman.setLives(PACMAN_LIVES);
 			agents.get(GenericAgent.PACMAN).add(pacman);
 		}
 		resetAgents();
@@ -78,12 +83,15 @@ public class Game {
 	private void resetAgents (){
 		for (List <GenericAgent> agentList : agents.values()){
 			for (GenericAgent agent : agentList){
+				if (agent.isDead() == true && agent instanceof Ghost){
+					agent.revive(  new IntDimension(1, 2), GHOST_LIVES);
+				}else if (agent.isDead() && agent instanceof Pacman){
+					agent.revive( new IntDimension(13, 2), PACMAN_LIVES);
+				}
 				Move.resetPosition(this, agent);
 			}
 		}
 	}
-	
-
 	
 	public void drawGrid () throws IOException{
 		grid = GridDrawer.drawFromImage(new File ("C:\\Users\\GMAN\\Desktop\\Temp Stuff\\grid01.jpg"),new IntDimension (50,50));
@@ -97,7 +105,7 @@ public class Game {
 		agents.put(GenericAgent.PACMAN, new ArrayList <GenericAgent> ());
 		agents.put(GenericAgent.GHOST, new ArrayList <GenericAgent> ());
 	}
-
+	
 	
 	public int getScore() {
 		return score;
@@ -105,6 +113,9 @@ public class Game {
 
 	public void setScore(int score) {
 		this.score = score;
+		if (this.score >= grid.getTotalScores()){
+			this.reset();
+		}
 	}
 
 	public int getScaredGhostsDuration() {
@@ -153,6 +164,22 @@ public class Game {
 
 	public void setAgents (Map <Integer,ArrayList<GenericAgent>> agents) {
 		this.agents = agents;
+	}
+	
+	public int getDeadGhostsCount (){
+		int count = 0;
+		for (GenericAgent agent : getGhosts()){
+			if (agent.isDead() == true){count++;}
+		}
+		return count;
+	}
+	
+	public int getDeadPacmenCount (){
+		int count = 0;
+		for (GenericAgent agent : getPacmen()){
+			if (agent.isDead() == true){count++;}
+		}
+		return count;
 	}
 	
 }

@@ -98,13 +98,13 @@ public class InputReader extends NeuralNetworkReader {
     			
     			//ghost distance
     			agentDistances = search.findAgentDistances(game.getGhosts(), block);
-    			if (agent.isScared() == true){
+    			if (agent.isScared() == true && agentDistances != null){
     				for (int j = 0; j < 5; j++){
     					distance = agentDistances.get(j);
     					if (distance != 0 ){distance = distance/100;}
     					neurons.get(i+2+j).setOutputValue(distance);
     				}
-    			}else{
+    			}else if (agent.isScared() == false && agentDistances != null){
     				for (int j = 0; j < 5; j++){
     					distance = agentDistances.get(j);
     					if (distance == 0 ){distance = 1;}

@@ -21,6 +21,7 @@ public class Grid  implements Serializable {
 	private IntDimension blockPixelDimensions;
 	private Canvas canvas;
 	private int totalScores = 0;
+	private int pillsLeft = 0;
 	
 	public Grid (IntDimension dimension , IntDimension blockSize){
 		
@@ -53,7 +54,7 @@ public class Grid  implements Serializable {
 		for (Block block : blocks){
 			try{
 				road = (Road) block;
-				drawPills(road);
+				updateRoad (road,road.getPill());
 			}catch (ClassCastException e){}
 		}
 	}
@@ -121,6 +122,14 @@ public class Grid  implements Serializable {
 		return (arrayElementNumber);
 	}
 	
+	private void calculatePillsLeft (){
+		pillsLeft = 0;
+		for (Block block : blocks){
+			if (block instanceof Road && ((Road)block).getPill() != Pill.NONE){
+				pillsLeft ++;
+			}
+		}
+	}
 	public IntDimension getBlockDimensions() {
 		return blockDimensions;
 	}
@@ -158,5 +167,11 @@ public class Grid  implements Serializable {
 	public void setTotalScores(int totalScores) {
 		this.totalScores = totalScores;
 	}
+
+	public int getPillsLeft() {
+		calculatePillsLeft();
+		return pillsLeft;
+	}
 	
+
 }

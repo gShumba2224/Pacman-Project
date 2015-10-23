@@ -80,12 +80,12 @@ public class AiSimulatorMain  extends Application {
 		AgentEvolver2 e = new AgentEvolver2(game,net1, 80, GenericAgent.PACMAN,-1,1);
 		AgentEvolver e2 = new AgentEvolver(game,net2, 400, GenericAgent.GHOST,0,1);
 		
-		e.getAlgorithm().setMutationRate(0.065);
+		e.getAlgorithm().setMutationRate(0.06);
 		e2.getAlgorithm().setMutationRate(0.06);
 		pacSim = new AiSimulator(game, net1, e.getAlgorithm(), net2, e2.getAlgorithm());
 		pacSim.setGhostSimulationProperties(0,15, 100, 0.5);
 		pacSim.setPacSimulationProperties(7,7, 100, 2);
-		pacSim.setSimulationProperties(5000, 80,60);
+		pacSim.setSimulationProperties(5000, 150,160);
 		pacSim.startThread("Pacman Simulation");
 	}
 	
