@@ -103,28 +103,15 @@ public class AiSimulator implements Runnable{
 		this.ghostTemperature = temperature;
 		this.ghostCoolRate = coolRate;
 	}		
-
 	
 	public void simulateGame(int run,long delay) throws DuplicateNeuronID_Exception{
 		if (run == 0){return;}
 		for (GenericAgent agent : game.getPacmen()){
-			if ( agent.isDead() == false){
-				for (int i = 0; i < agent.getSpeed(); i++){
-					if (game.getGrid().getPillsLeft() == 0){game.reset();}
-					play (pacNetwork,pacAlgorithm,agent);}
-			}
+			for (int i = 0; i < agent.getSpeed(); i++){play (pacNetwork,pacAlgorithm,agent);}
 		}
 		delay(delay);
 		for (GenericAgent agent : game.getGhosts()){
-			System.out.println("is dead = "+ agent.isDead());
-			if (agent.isDead() == false){
-				if (game.getDeadPacmenCount() == game.getPacmen().size()){
-					setStartPosition(game.getPacmen(), pacMin, pacMax, true);
-					game.reset();
-				}
-				for (int i = 0; i < agent.getSpeed(); i++){ 
-					play (ghostNetwork,ghostAlgorithm,agent);}
-			}
+			for (int i = 0; i < agent.getSpeed(); i++){play (ghostNetwork,ghostAlgorithm,agent);}
 		}
 		run--;
 		simulateGame(run, delay);
@@ -137,15 +124,7 @@ public class AiSimulator implements Runnable{
 		while (pacIndex < pacAlgorithm.getPopulation().size() 
 				&& ghostIndex < ghostAlgorithm.getPopulation().size()){
 			
-			final CountDownLatch latch = new CountDownLatch(1);
-			Platform.runLater(new Runnable() {
-			    public void run() {
-			    	game.reset();
-			    	latch.countDown();}
-				});
-			try {latch.await();} 
-			catch (InterruptedException e) {e.printStackTrace();}
-			
+			resetGame();
 			delay(30);
 			for (GenericAgent agent: game.getPacmen()){
 				Genome genome = pacAlgorithm.getPopulation().get(pacIndex);
@@ -162,6 +141,9 @@ public class AiSimulator implements Runnable{
 	}
 	
 	public void play (NeuralNetwork network,GeneticAlgorithm algorithm,GenericAgent agent) throws DuplicateNeuronID_Exception{
+		
+		if (agent.isDead() == true){return;}
+		if (game.getGrid().getPillsLeft() == 0){resetGame();}
 		network.getInputReader().readInputs (network, agent, game);
 		if (agent instanceof Ghost){
 			int index = 0;
@@ -237,6 +219,16 @@ public class AiSimulator implements Runnable{
 		return block;
 	}
 	
+	private void resetGame (){
+		final CountDownLatch latch = new CountDownLatch(1);
+		Platform.runLater(new Runnable() {
+		    public void run() {
+		    	game.reset();
+		    	latch.countDown();}
+			});
+		try {latch.await();} 
+		catch (InterruptedException e) {e.printStackTrace();}
+	}
 	
 }
 

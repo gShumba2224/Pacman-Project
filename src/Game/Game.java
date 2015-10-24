@@ -24,7 +24,7 @@ public class Game {
 	private long duration = 1000*30;
 	private int scaredGhostsDuration = 0;
 	private static final int PACMAN_LIVES = 100;
-	private static final int GHOST_LIVES = 1; 
+	private static final int GHOST_LIVES = 0; 
 	
 	
 	public Game() throws IOException{

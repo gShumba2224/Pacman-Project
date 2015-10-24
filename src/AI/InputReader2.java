@@ -43,7 +43,8 @@ public class InputReader2 extends InputReader{
 			 block =  adjacentBlocks.get(i);
 			if (block instanceof Road){
 				agentDistances = search.findAgentDistances(game.getGhosts(), block);
-				double safeScore = findClosestEnemy(agentDistances);
+				double safeScore = 150;
+				if (agentDistances.size() != 0){ safeScore = findClosestEnemy(agentDistances);}
 				
 				double pointScore = 150;
 				Container container = pillDistances.get(block.getGridNumber());
@@ -90,9 +91,11 @@ public class InputReader2 extends InputReader{
     	distance = search.findPowerPillDistances(currentBlock,game.getGrid());
     	inputLayer.getNeurons().get(1).setOutputValue(normalizeDist(distance));
     	
-    	distance = agentDistances.get(0);
-    	for (double currentVal : agentDistances){if (currentVal < distance){distance = currentVal;}}
-    	inputLayer.getNeurons().get(2).setOutputValue(normalizeDist(distance)); 
+    	if (agentDistances.size() != 0){
+        	distance = agentDistances.get(0);
+        	for (double currentVal : agentDistances){if (currentVal < distance){distance = currentVal;}}
+        	inputLayer.getNeurons().get(2).setOutputValue(normalizeDist(distance)); 
+    	}else{inputLayer.getNeurons().get(2).setOutputValue(0);}
     	
     	if (agent.isScared() == true){
     		inputLayer.getNeurons().get(3).setOutputValue(-1);
