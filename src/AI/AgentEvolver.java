@@ -64,11 +64,14 @@ public class AgentEvolver  {
 
 	protected Integer outputToDirection (NeuralNetwork network){
 		int index= 0;
+		Random rand = new Random ();
 		double highest = network.getOutputs().get(0);
 		for (int i = 0; i <network.getOutputs().size();i++){
 			if (network.getOutputs().get(i) > highest){
 				highest = network.getOutputs().get(i);
 				index = i;
+			}else if (highest == network.getOutputs().get(i) ){
+				if (rand.nextDouble() >= 0.5){index = i;}
 			}
 		}
 		return index;

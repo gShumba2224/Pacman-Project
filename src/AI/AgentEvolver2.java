@@ -6,6 +6,7 @@ import Agents.GenericAgent;
 import Agents.Ghost;
 import Game.Game;
 import Game.Move;
+import Game.UnstickAgent;
 import GeneticAlgorithm.Evolve;
 import GeneticAlgorithm.Genome;
 import Neurons.NeuralNetwork;
@@ -14,11 +15,13 @@ public class AgentEvolver2 extends AgentEvolver {
 	
 	private final int  EVADE = 0;
 	private final int  EAT = 1;
+	private  UnstickAgent unstickAgent;
 	
 
 	public AgentEvolver2(Game game, NeuralNetwork network, int population, int agentType,
 			double minWeight,double maxWeight) {
 		super();
+		unstickAgent = new UnstickAgent(game);
 		initAlgorithm (network, population, minWeight,maxWeight,"points");
 	}
 
@@ -60,7 +63,7 @@ public class AgentEvolver2 extends AgentEvolver {
 				result = Move.moveAgent(agent, game, reader.getSafeBlock().getGridPosition());}
 				else  { result = Move.moveAgent(agent, game, reader.getPointBlock().getGridPosition());}
 				evaluatePacman(result,agent);
-
+			//	if (agent.isDead() == false ){unstickAgent.checkIfStuck(agent);}
 			}
 			@Override
 			public void preEvolutionActions (){

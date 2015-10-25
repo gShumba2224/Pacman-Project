@@ -3,6 +3,8 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
 import Utils.IntDimension;
 import javafx.event.EventHandler;
 import javafx.scene.canvas.Canvas;
@@ -130,6 +132,29 @@ public class Grid  implements Serializable {
 			}
 		}
 	}
+	
+	public List<Block> getAdjacentBlocks (IntDimension centre){
+		
+		List <Block> adjacentBlocks = new ArrayList<Block>();
+		Block block;
+		int x = centre.X;
+		int y = centre.Y;
+		
+		block = getBlock(new IntDimension(x-1, y)); //left
+		adjacentBlocks.add(block);
+		
+		block = getBlock(new IntDimension(x+1, y)); //right
+		adjacentBlocks.add(block);
+		
+		block = getBlock(new IntDimension(x, y-1)); //top
+		adjacentBlocks.add(block);
+		
+		block = getBlock(new IntDimension(x, y+1)); //bottom
+		adjacentBlocks.add(block);
+		
+		return adjacentBlocks;
+	}
+	
 	public IntDimension getBlockDimensions() {
 		return blockDimensions;
 	}

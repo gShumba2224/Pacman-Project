@@ -84,9 +84,9 @@ public class Game {
 		for (List <GenericAgent> agentList : agents.values()){
 			for (GenericAgent agent : agentList){
 				if (agent.isDead() == true && agent instanceof Ghost){
-					agent.revive(  new IntDimension(1, 2), GHOST_LIVES);
+					agent.revive(  GHOST_LIVES, false);
 				}else if (agent.isDead() && agent instanceof Pacman){
-					agent.revive( new IntDimension(13, 2), PACMAN_LIVES);
+					agent.revive(  PACMAN_LIVES , true);
 				}
 				Move.resetPosition(this, agent);
 			}

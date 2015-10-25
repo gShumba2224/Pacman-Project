@@ -107,11 +107,17 @@ public class AiSimulator implements Runnable{
 	public void simulateGame(int run,long delay) throws DuplicateNeuronID_Exception{
 		if (run == 0){return;}
 		for (GenericAgent agent : game.getPacmen()){
-			for (int i = 0; i < agent.getSpeed(); i++){play (pacNetwork,pacAlgorithm,agent);}
+			for (int i = 0; i < agent.getSpeed(); i++){
+				if (game.getPacmen().size() == game.getDeadPacmenCount()){return;}
+				play (pacNetwork,pacAlgorithm,agent);
+			}
 		}
 		delay(delay);
 		for (GenericAgent agent : game.getGhosts()){
-			for (int i = 0; i < agent.getSpeed(); i++){play (ghostNetwork,ghostAlgorithm,agent);}
+			for (int i = 0; i < agent.getSpeed(); i++){
+				if (game.getPacmen().size() == game.getDeadPacmenCount()){return;}
+				play (ghostNetwork,ghostAlgorithm,agent);
+			}
 		}
 		run--;
 		simulateGame(run, delay);

@@ -25,7 +25,7 @@ public class Move  {
 	public static final int GOT_POWER_PILL = Pill.POWERPILL;
 	public static final int KILLED_ENEMY = 4;
 	public static final int GOT_NONE_PILL = 0;
-	public static final int SCARE_DURATION = 40;
+	public static final int SCARE_DURATION = 20;
 	private static final UpdateUI uiUpdater = new UpdateUI();
 
 	private static GenericAgent killer = null;
@@ -33,8 +33,8 @@ public class Move  {
 	private Move (){
 	}
 	
+
 	public static int moveAgent(GenericAgent agent, Game game, IntDimension location ) {
-		
 		Grid grid = game.getGrid();
 		int result = Move.GOT_NONE_PILL;
 		if (agent.isDead() == true){return result;}
@@ -48,7 +48,7 @@ public class Move  {
 					result = Move.KILLED_ENEMY;
 				}else if (road.getPill() != Pill.NONE  ){
 					if (road.getPill() == Pill.POWERPILL){
-						game.setScaredGhostsDuration(SCARE_DURATION);
+						game.setScaredGhostsDuration(SCARE_DURATION + game.getScaredGhostsDuration());
 						uiUpdater.doUpdate(UpdateUI.CHANGE_SCARE_STATE,
 								game,null, null, GenericAgent.PACMAN, false);
 						uiUpdater.doUpdate(UpdateUI.CHANGE_SCARE_STATE,
@@ -98,12 +98,14 @@ public class Move  {
 			road.setOccupiedBy(Move.killer);
 			Move.victim.decrementLife();
 			if (Move.victim.isDead() == false) {resetPosition(game, Move.victim);}
+			System.out.println("genome ID = "+  Move.victim.getController().getID());
 		}else if (result == Move.KILLED_ENEMY){
 			Move.killer = agent;
 			Move.victim = road.getOccupiedBy();
 			road.setOccupiedBy(Move.killer);
 			Move.victim.decrementLife();
 			if (Move.victim.isDead() == false) {resetPosition(game, Move.victim);}
+			System.out.println("genome ID = "+  Move.victim.getController().getID());
 		}
 		if (result != Move.GOT_KILLED){
 			road.setOccupiedBy(agent);

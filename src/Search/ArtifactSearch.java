@@ -153,7 +153,7 @@ public class ArtifactSearch {
 		IntDimension[] powerPills = {new IntDimension(1, 1), new IntDimension(13, 1),
 									new IntDimension(1, 13), new IntDimension(13, 13)};
 		
-		double lowestDist = -1.0;
+		Double lowestDist = null;
 		for (int i = 0; i < powerPills.length; i++){
 			double distance = 0.0;
 			if ( ((Road )grid.getBlock(powerPills[i])).getPill() != Pill.NONE){
@@ -162,9 +162,10 @@ public class ArtifactSearch {
 					distance = DistanceCalculator.manhattanDistance(powerPills[i],
 							 block.getGridPosition())*A_StarSearch.MOVE;
 				}else{distance = A_StarSearch.stepToGoal(node);}
-				if (distance < lowestDist || lowestDist == -1){lowestDist = distance;}
+				if ( lowestDist == null || distance < lowestDist){lowestDist = distance;}
 			}else {distance = A_StarSearch.MOVE * 20;}
 		}
+		if (lowestDist == null){lowestDist = 0.0;}
 		return lowestDist;
 	}
 }

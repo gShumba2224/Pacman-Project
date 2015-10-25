@@ -30,27 +30,6 @@ public class InputReader extends NeuralNetworkReader {
 		this.game = game;
 	}
 	
-	public List<Block> getAdjacentBlocks (IntDimension centre, Grid grid){
-		
-		List <Block> adjacentBlocks = new ArrayList<Block>();
-		Block block;
-		int x = centre.X;
-		int y = centre.Y;
-		
-		block = grid.getBlock(new IntDimension(x-1, y)); //left
-		adjacentBlocks.add(block);
-		
-		block = grid.getBlock(new IntDimension(x+1, y)); //right
-		adjacentBlocks.add(block);
-		
-		block = grid.getBlock(new IntDimension(x, y-1)); //top
-		adjacentBlocks.add(block);
-		
-		block = grid.getBlock(new IntDimension(x, y+1)); //bottom
-		adjacentBlocks.add(block);
-		
-		return adjacentBlocks;
-	}
 	
 	@Override
 	public void readInputs(NeuralNetwork network, Object... parameters) {
@@ -71,7 +50,7 @@ public class InputReader extends NeuralNetworkReader {
 	
     public void setPacmanInput (Game game,GenericAgent agent, NeuralLayer inputLayer){
 		List <Neuron> neurons = inputLayer.getNeurons();
-		List <Block> blocks = getAdjacentBlocks (agent.getLocation(), game.getGrid());
+		List <Block> blocks = game.getGrid().getAdjacentBlocks (agent.getLocation());
 		Map<Integer,Container> pillDistances =search.findNearestPill(game.getGrid(), agent.getLocation(), 1000);
 		List <Double> agentDistances = null;
 		int index = 0;
@@ -137,7 +116,7 @@ public class InputReader extends NeuralNetworkReader {
     public void setGhostInput (Game game,GenericAgent agent, NeuralLayer inputLayer){
 
 		List <Neuron> neurons = inputLayer.getNeurons();
-		List <Block> blocks = getAdjacentBlocks (agent.getLocation(), game.getGrid());
+		List <Block> blocks = game.getGrid().getAdjacentBlocks (agent.getLocation());
 		List <Double> agentDistances = null;
 		double distance =0.0;
 		

@@ -33,18 +33,17 @@ public class GenericAgent implements Serializable {
 	}
 	
 	public void kill (){
-		graphic.setOpacity(0.0);
+		graphic.setOpacity(0.25);
 		location = null;
-		resetPos = null;
 		lives = 0;
 		isDead = true;
 	}
 	
-	public void revive (IntDimension resetPos, int lives){
+	public void revive ( int lives, boolean state){
 		graphic.setOpacity(1);
-		this.resetPos = resetPos;
 		this.lives = lives;
 		isDead = false;
+		this.setScared(state);
 	}
 	
 	public void decrementLife (){
