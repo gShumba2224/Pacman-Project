@@ -18,17 +18,16 @@ public class InputReader2 extends InputReader{
 	
 	private Block safeBlock = null;
 	private Block pointBlock = null;
+	private final double MAXDIST = 200;
 
 	public InputReader2(Game game) {
 		super(game);
 	}
 	
-	public double normalizeDist (double distance){
-		if (distance == 0){
-			return distance;
-		}else {
-			return distance/200;
-		}
+	public double normalizeDist (double distance, boolean doInvert){
+		if (distance != 0){distance = distance/MAXDIST;}
+		if (doInvert == true) {distance = 1 - distance;}
+		return distance;
 	}
 	
 	public void setBestBlocks (Map<Integer,Container> pillDistances, GenericAgent agent){
@@ -46,10 +45,10 @@ public class InputReader2 extends InputReader{
 			 block =  adjacentBlocks.get(i);
 			if (block instanceof Road){
 				agentDistances = search.findAgentDistances(game.getGhosts(), block);
-				double safeScore = 200;
+				double safeScore = MAXDIST;
 				if (agentDistances.size() != 0){ safeScore = findClosestEnemy(agentDistances);}
 				
-				double pointScore = 200;
+				double pointScore = MAXDIST;
 				Container container = pillDistances.get(block.getGridNumber());
 				if (container!= null){
 					pointScore = container.distance + search.findPowerPillDistances(block,game.getGrid());
@@ -71,8 +70,6 @@ public class InputReader2 extends InputReader{
 				}
 			}
 		}
-		System.out.println("POINT SCORES =" + pointBest+ " grid pos = " + 
-		pointBlock.getGridPosition().X+","+pointBlock.getGridPosition().Y + " pill type = "+ ((Road)pointBlock).getPill());
 	}
 
 	private double findClosestEnemy (List <Double> distanceList){
@@ -91,25 +88,22 @@ public class InputReader2 extends InputReader{
 		distance = it.next().getValue().distance;
 		while (it.hasNext() == true){
 			double currentVal = it.next().getValue().distance ;
-			if (currentVal < distance){distance = currentVal; }
+			if (currentVal < distance){distance = currentVal;}
 		}
-    		
-    	inputLayer.getNeurons().get(0).setOutputValue(normalizeDist(distance));
+    	inputLayer.getNeurons().get(0).setOutputValue(normalizeDist(distance,false));
     	
     	distance = search.findPowerPillDistances(currentBlock,game.getGrid());
-    	inputLayer.getNeurons().get(1).setOutputValue(normalizeDist(distance));
+    	inputLayer.getNeurons().get(1).setOutputValue(normalizeDist(distance,false));
     	
     	if (agentDistances.size() != 0){
         	distance = agentDistances.get(0);
-        	for (double currentVal : agentDistances){if (currentVal < distance){distance = currentVal;}}
-        	inputLayer.getNeurons().get(2).setOutputValue(normalizeDist(distance)); 
-    	}else{inputLayer.getNeurons().get(2).setOutputValue(0);}
+        	for (double currentVal : agentDistances){if (currentVal < distance){distance = currentVal;}} 
+    	}else{distance = MAXDIST;}
     	
-    	if (agent.isScared() == true){
-    		inputLayer.getNeurons().get(3).setOutputValue(-1);
-    	}else{
-    		inputLayer.getNeurons().get(3).setOutputValue(1);
-    	}
+    	inputLayer.getNeurons().get(2).setOutputValue(normalizeDist(distance,false));
+
+    	if (agent.isScared() == true){inputLayer.getNeurons().get(3).setOutputValue(-1);}
+    	else{inputLayer.getNeurons().get(3).setOutputValue(1);}
     	setBestBlocks(pillDistances, agent);
     }
 

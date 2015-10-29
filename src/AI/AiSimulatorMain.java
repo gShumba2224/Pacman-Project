@@ -24,6 +24,7 @@ import Neurons.NeuralNetwork;
 import Neurons.NeuralNetworkReader;
 import Neurons.Neuron;
 import PacmanGrid.Block;
+import PacmanGrid.Pill;
 import PacmanGrid.Road;
 import Search.A_StarNode;
 import Search.A_StarSearch;
@@ -68,24 +69,25 @@ public class AiSimulatorMain  extends Application {
 	
 	public void buildNetwork1 () throws DuplicateNeuronID_Exception{
 		
-		NeuralNetwork net1 =  new NeuralNetwork(4, 2, 1, 10);
+		NeuralNetwork net1 =  new NeuralNetwork(4, 2, 1, 6);
 		NeuralNetwork net2 = new NeuralNetwork(4, 4, 0, 0);
 		
 		InputReader2 reader1= new InputReader2(game);
 		InputReader reader2= new InputReader(game);
 		
 		net1.setInputReader(reader1);
+		net1.setBiaInputs(-1);
 		net2.setInputReader(reader2);
 		
-		AgentEvolver2 e = new AgentEvolver2(game,net1, 80, GenericAgent.PACMAN,-1,1);
-		AgentEvolver e2 = new AgentEvolver(game,net2, 400, GenericAgent.GHOST,0,1);
+		AgentEvolver2 e = new AgentEvolver2(game,net1, 40, GenericAgent.PACMAN,-1,1);
+		AgentEvolver e2 = new AgentEvolver(game,net2, 200, GenericAgent.GHOST,0,1);
 		
-		e.getAlgorithm().setMutationRate(0.06);
-		e2.getAlgorithm().setMutationRate(0.06);
+		e.getAlgorithm().setMutationRate(0.05);
+		e2.getAlgorithm().setMutationRate(0.05);
 		pacSim = new AiSimulator(game, net1, e.getAlgorithm(), net2, e2.getAlgorithm());
-		pacSim.setGhostSimulationProperties(0,15, 100, 0.5);
-		pacSim.setPacSimulationProperties(7,7, 100, 2);
-		pacSim.setSimulationProperties(5000, 150,160);
+		pacSim.setGhostSimulationProperties(0,2, 100, 0.5);
+		pacSim.setPacSimulationProperties(6,0, 100, 1);
+		pacSim.setSimulationProperties(5000, 30,0);
 		pacSim.startThread("Pacman Simulation");
 	}
 	

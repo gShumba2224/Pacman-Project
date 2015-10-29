@@ -1,6 +1,7 @@
 package AI;
 
 import java.util.List;
+import java.util.Random;
 
 import Agents.GenericAgent;
 import Agents.Ghost;
@@ -15,23 +16,27 @@ public class AgentEvolver2 extends AgentEvolver {
 	
 	private final int  EVADE = 0;
 	private final int  EAT = 1;
-	private  UnstickAgent unstickAgent;
 	
 
 	public AgentEvolver2(Game game, NeuralNetwork network, int population, int agentType,
 			double minWeight,double maxWeight) {
 		super();
-		unstickAgent = new UnstickAgent(game);
 		initAlgorithm (network, population, minWeight,maxWeight,"points");
 	}
 
 	protected Integer outputToDirection (NeuralNetwork network){
+		Random rand = new Random();
+		int action = EAT;
 		List <Double> outputs = network.getOutputs();
 		if (outputs.get(0) > outputs.get(1) ){
-			return EAT;
-		}else{
-			return EAT;
+			action = EAT;
+		}else if (outputs.get(0) < outputs.get(1) ){
+			action = EVADE;
+		}else if (outputs.get(0) == outputs.get(1) ){
+			if (rand.nextDouble() >= 0.5){action = EVADE;}
+			else {action = EAT;}
 		}
+		return action;
 	}
 	
 	protected void evaluatePacman (int moveResult, GenericAgent agent){
@@ -39,7 +44,7 @@ public class AgentEvolver2 extends AgentEvolver {
 		if (moveResult == Move.GOT_POWER_PILL){
 			increamentPerformance(genome, 1, "points");
 		}else if (moveResult == Move.GOT_STANDARD_PILL){
-			increamentPerformance(genome, 0.1, "points");
+			increamentPerformance(genome, 0.05, "points");
 		}else if (moveResult == Move.KILLED_ENEMY){
 			increamentPerformance(genome, 2, "points");
 		}else if (moveResult == Move.GOT_KILLED){
@@ -63,7 +68,6 @@ public class AgentEvolver2 extends AgentEvolver {
 				result = Move.moveAgent(agent, game, reader.getSafeBlock().getGridPosition());}
 				else  { result = Move.moveAgent(agent, game, reader.getPointBlock().getGridPosition());}
 				evaluatePacman(result,agent);
-			//	if (agent.isDead() == false ){unstickAgent.checkIfStuck(agent);}
 			}
 			@Override
 			public void preEvolutionActions (){

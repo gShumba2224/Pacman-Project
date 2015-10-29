@@ -25,7 +25,7 @@ public class Move  {
 	public static final int GOT_POWER_PILL = Pill.POWERPILL;
 	public static final int KILLED_ENEMY = 4;
 	public static final int GOT_NONE_PILL = 0;
-	public static final int SCARE_DURATION = 20;
+	public static final int SCARE_DURATION = 15;
 	private static final UpdateUI uiUpdater = new UpdateUI();
 
 	private static GenericAgent killer = null;
@@ -98,14 +98,12 @@ public class Move  {
 			road.setOccupiedBy(Move.killer);
 			Move.victim.decrementLife();
 			if (Move.victim.isDead() == false) {resetPosition(game, Move.victim);}
-			System.out.println("genome ID = "+  Move.victim.getController().getID());
 		}else if (result == Move.KILLED_ENEMY){
 			Move.killer = agent;
 			Move.victim = road.getOccupiedBy();
 			road.setOccupiedBy(Move.killer);
 			Move.victim.decrementLife();
 			if (Move.victim.isDead() == false) {resetPosition(game, Move.victim);}
-			System.out.println("genome ID = "+  Move.victim.getController().getID());
 		}
 		if (result != Move.GOT_KILLED){
 			road.setOccupiedBy(agent);

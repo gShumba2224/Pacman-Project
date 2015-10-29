@@ -49,7 +49,6 @@ public class GenericAgent implements Serializable {
 	public void decrementLife (){
 		lives --;
 		if (lives < 0){kill();}
-		System.out.println("LIVES LEFT = " + lives);
 	}
 	
 	public IntDimension getLocation() {

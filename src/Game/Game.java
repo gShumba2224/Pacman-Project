@@ -23,8 +23,10 @@ public class Game {
 	private Grid grid;
 	private long duration = 1000*30;
 	private int scaredGhostsDuration = 0;
-	private static final int PACMAN_LIVES = 100;
+	private static final int PACMAN_LIVES = 0;
 	private static final int GHOST_LIVES = 0; 
+	private static final int PACMAN_SPEED = 3;
+	private static final int GHOST_SPEED = 1;
 	
 	
 	public Game() throws IOException{
@@ -51,7 +53,6 @@ public class Game {
 		score = 0;
 		resetAgents();
 		grid.resetGrid();
-		System.out.println("reset called wooooo");
 	}
 	
 	
@@ -68,6 +69,7 @@ public class Game {
 			ghost = new Ghost (new Image (new File ("C:\\Users\\GMAN\\Desktop\\Temp Stuff\\agentRedGhost.png").toURI().toString()));
 			ghost.setResetPos(new IntDimension(1, 2));
 			ghost.setLives(GHOST_LIVES);
+			ghost.setSpeed(GHOST_SPEED);
 			agents.get(GenericAgent.GHOST).add(ghost);
 		}
 		
@@ -75,6 +77,7 @@ public class Game {
 			pacman = new Pacman (new Image (new File ("C:\\Users\\GMAN\\Desktop\\Temp Stuff\\agentPacman.png").toURI().toString()));
 			pacman.setResetPos(new IntDimension(13, 2));
 			pacman.setLives(PACMAN_LIVES);
+			pacman.setSpeed(PACMAN_SPEED);
 			agents.get(GenericAgent.PACMAN).add(pacman);
 		}
 		resetAgents();
@@ -180,6 +183,18 @@ public class Game {
 			if (agent.isDead() == true){count++;}
 		}
 		return count;
+	}
+	
+	public GenericAgent[] getAllAgents(){
+		int totalSize = getPacmen().size()+getGhosts().size();
+		GenericAgent[] allAgents = new GenericAgent[totalSize] ;
+		for (int i = 0; i < getPacmen().size(); i++){
+			allAgents[i] = getPacmen().get(i);
+		}
+		for (int i = getPacmen().size(); i < totalSize; i++){
+			allAgents[i] = getGhosts().get(i -getPacmen().size());
+		}
+		return allAgents;
 	}
 	
 }
