@@ -47,6 +47,7 @@ public class AiSimulator implements Runnable{
 	private int ghostBoltzSample;
 	private double ghostTemperature;
 	private double ghostCoolRate;
+	private double minFitness;
 	
 	private IntDimension ghostMax;
 	private IntDimension ghostMin;
@@ -116,11 +117,7 @@ public class AiSimulator implements Runnable{
 				if (agent.isDead() == true){return;}
 				if (game.getPacmen().size() == game.getDeadPacmenCount()){return;}
 				if (game.getGrid().getPillsLeft() <= 0){resetGame();}
-
 				play (network,algorithm,agent);
-				//String val = "Ghost = ";
-				//if (agent instanceof Pacman){ val = "Pacman = ";}
-				//System.out.println(val+ agent.getController().getID()+ " RESTPOS = " + agent.getResetPos().X+","+agent.getResetPos().Y);
 				delay(delay);
 			}
 		}
@@ -177,7 +174,6 @@ public class AiSimulator implements Runnable{
 				network.getOutputLayer().getNeurons().get(index).setOutputValue(val);
 				index++;
 			}
-			return;
 		}else{
 			network.setWeights(agent.getController());
 			network.update();

@@ -2,6 +2,7 @@ package Game;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +26,7 @@ public class Game {
 	private int scaredGhostsDuration = 0;
 	private static final int PACMAN_LIVES = 0;
 	private static final int GHOST_LIVES = 0; 
-	private static final int PACMAN_SPEED = 3;
+	private static final int PACMAN_SPEED = 10;
 	private static final int GHOST_SPEED = 1;
 	
 	
@@ -65,21 +66,26 @@ public class Game {
 		Pacman pacman;
 		agents.get(GenericAgent.GHOST).clear();
 		agents.get(GenericAgent.PACMAN).clear();
-		for (int i = 0 ; i < numGhosts ; i++){
-			ghost = new Ghost (new Image (new File ("C:\\Users\\GMAN\\Desktop\\Temp Stuff\\agentRedGhost.png").toURI().toString()));
-			ghost.setResetPos(new IntDimension(1, 2));
-			ghost.setLives(GHOST_LIVES);
-			ghost.setSpeed(GHOST_SPEED);
-			agents.get(GenericAgent.GHOST).add(ghost);
-		}
-		
-		for (int i = 0 ; i < numPacmen ; i++){
-			pacman = new Pacman (new Image (new File ("C:\\Users\\GMAN\\Desktop\\Temp Stuff\\agentPacman.png").toURI().toString()));
-			pacman.setResetPos(new IntDimension(13, 2));
-			pacman.setLives(PACMAN_LIVES);
-			pacman.setSpeed(PACMAN_SPEED);
-			agents.get(GenericAgent.PACMAN).add(pacman);
-		}
+		URL resource;
+		try{
+			for (int i = 0 ; i < numGhosts ; i++){
+				resource = Ghost.class.getClassLoader().getResource("Agents/agentRedGhost.png");
+				ghost = new Ghost (new Image (resource.toString()));
+				ghost.setResetPos(new IntDimension(1, 2));
+				ghost.setLives(GHOST_LIVES);
+				ghost.setSpeed(GHOST_SPEED);
+				agents.get(GenericAgent.GHOST).add(ghost);
+			}
+			
+			for (int i = 0 ; i < numPacmen ; i++){
+				resource = Pacman.class.getClassLoader().getResource("Agents/agentPacman.png");
+				pacman = new Pacman (new Image (resource.toString()));
+				pacman.setResetPos(new IntDimension(13, 2));
+				pacman.setLives(PACMAN_LIVES);
+				pacman.setSpeed(PACMAN_SPEED);
+				agents.get(GenericAgent.PACMAN).add(pacman);
+			}
+		}catch (Exception e){ System.out.println("sdsddsfsdfdsfsfsdfsd");}
 		resetAgents();
 	}
 	
@@ -97,9 +103,13 @@ public class Game {
 	}
 	
 	public void drawGrid () throws IOException{
-		grid = GridDrawer.drawFromImage(new File ("C:\\Users\\GMAN\\Desktop\\Temp Stuff\\grid01.jpg"),new IntDimension (50,50));
-		File file = new File ("C:\\Users\\GMAN\\Desktop\\Temp Stuff\\grid01.jpg");
-		grid.setBackgroundImage(new Image (file.toURI().toString()));
+		URL resource;
+		
+		resource = Grid.class.getClassLoader().getResource("PacmanGrid/gridTemplate.jpg");
+		grid = GridDrawer.drawFromImage(new File (resource.getPath()),new IntDimension (50,50));
+		
+		resource = Grid.class.getClassLoader().getResource("PacmanGrid/gridBackground.jpg");
+		grid.setBackgroundImage(new Image (resource.toString()));
 		grid.drawPills();
 		grid.drawGridExtras();
 	}

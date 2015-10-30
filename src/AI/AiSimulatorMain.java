@@ -41,8 +41,7 @@ public class AiSimulatorMain  extends Application {
 	
 	StackPane stackPane = new StackPane();
 	Game game; 
-	AiSimulator pacSim ;//= new AiSimulator(GenericAgent.PACMAN, monitor);
-	AiSimulator ghostSim; //= new AiSimulator(GenericAgent.GHOST, monitor);
+	AiSimulator pacSim ;
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
