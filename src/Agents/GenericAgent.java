@@ -33,7 +33,7 @@ public class GenericAgent implements Serializable {
 	}
 	
 	public void kill (){
-		graphic.setOpacity(0.25);
+		graphic.setOpacity(0);
 		location = null;
 		lives = 0;
 		isDead = true;

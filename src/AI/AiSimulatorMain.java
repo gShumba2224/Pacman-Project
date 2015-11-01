@@ -1,6 +1,15 @@
 package AI;
 
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,7 +55,7 @@ public class AiSimulatorMain  extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		layoutWindow();
-		buildNetwork1();
+		simulate();
         Scene scene = new Scene(stackPane, 750, 750);
        // scene.setOnKeyPressed(keyEventHandler);
         primaryStage.setScene(scene);
@@ -66,7 +75,8 @@ public class AiSimulatorMain  extends Application {
 		stackPane.setAlignment(Pos.TOP_LEFT);
 	}
 	
-	public void buildNetwork1 () throws DuplicateNeuronID_Exception{
+	public void simulate () throws DuplicateNeuronID_Exception{
+		
 		
 		NeuralNetwork net1 =  new NeuralNetwork(4, 2, 1, 6);
 		NeuralNetwork net2 = new NeuralNetwork(4, 4, 0, 0);
@@ -81,14 +91,17 @@ public class AiSimulatorMain  extends Application {
 		AgentEvolver2 e = new AgentEvolver2(game,net1, 40, GenericAgent.PACMAN,-1,1);
 		AgentEvolver e2 = new AgentEvolver(game,net2, 200, GenericAgent.GHOST,0,1);
 		
-		e.getAlgorithm().setMutationRate(0.05);
+		e.getAlgorithm().setMutationRate(0.08);
 		e2.getAlgorithm().setMutationRate(0.05);
 		pacSim = new AiSimulator(game, net1, e.getAlgorithm(), net2, e2.getAlgorithm());
 		pacSim.setGhostSimulationProperties(0,2, 100, 0.5);
-		pacSim.setPacSimulationProperties(6,0, 100, 1);
-		pacSim.setSimulationProperties(5000, 30,0);
-		pacSim.startThread("Pacman Simulation");
+		pacSim.setPacSimulationProperties(7,0, 100, 1);
+		pacSim.setSimulationProperties(5000, 100,35);
+		pacSim.useDefaultGenomes = true;
+		pacSim.startThread("Pacman Simulation");	
 	}
+	
+	
 	
 	
   public static void main(String[] args) {

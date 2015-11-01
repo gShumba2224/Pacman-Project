@@ -24,9 +24,9 @@ public class Game {
 	private Grid grid;
 	private long duration = 1000*30;
 	private int scaredGhostsDuration = 0;
-	private static final int PACMAN_LIVES = 0;
+	private static final int PACMAN_LIVES = 3;
 	private static final int GHOST_LIVES = 0; 
-	private static final int PACMAN_SPEED = 10;
+	private static final int PACMAN_SPEED = 3;
 	private static final int GHOST_SPEED = 1;
 	
 	
@@ -74,6 +74,7 @@ public class Game {
 				ghost.setResetPos(new IntDimension(1, 2));
 				ghost.setLives(GHOST_LIVES);
 				ghost.setSpeed(GHOST_SPEED);
+				ghost.setName("ghost " + String.valueOf(i));
 				agents.get(GenericAgent.GHOST).add(ghost);
 			}
 			

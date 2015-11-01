@@ -1,5 +1,16 @@
 package AI;
 
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -11,11 +22,18 @@ import Game.UnstickAgent;
 import GeneticAlgorithm.Evolve;
 import GeneticAlgorithm.Genome;
 import Neurons.NeuralNetwork;
+import PacmanGrid.Grid;
 
 public class AgentEvolver2 extends AgentEvolver {
 	
-	private final int  EVADE = 0;
-	private final int  EAT = 1;
+	public final int  EVADE = 0;
+	public final int  EAT = 1;
+	private InputStream fileInputStream ;
+	private ObjectInputStream objInputStream;
+	private URL resource;
+	private FileOutputStream fileOutStream;
+	private ObjectOutputStream objOutStream;
+	
 	
 
 	public AgentEvolver2(Game game, NeuralNetwork network, int population, int agentType,
@@ -52,6 +70,34 @@ public class AgentEvolver2 extends AgentEvolver {
 		}
 	}
 	
+	private void saveFittest (double threshold){
+		List <Genome> fittest = readFittestList();
+		try {
+			resource = AgentEvolver2.class.getClassLoader().getResource("AI/FitGenomes.ai");
+			fileOutStream = new FileOutputStream(new File (resource.getPath()),false);
+			objOutStream = new ObjectOutputStream(fileOutStream);
+			for (Genome genome : this.getAlgorithm().getPopulation()){
+				if (genome.getOverallFitness() > threshold){fittest.add(genome);}
+			}
+			objOutStream.writeObject(fittest);
+			objOutStream.close();
+		} catch (IOException e) {e.printStackTrace();}
+	}
+	
+	private List <Genome> readFittestList (){
+		List <Genome>  fittestList = null;
+		fileInputStream =  AgentEvolver2.class.getClassLoader().getResourceAsStream("AI/FitGenomes.ai");
+		try {
+			objInputStream = new ObjectInputStream(fileInputStream);
+			fittestList = (ArrayList <Genome>) objInputStream.readObject();
+			objInputStream.close();
+		} catch (ClassNotFoundException | IOException  e) {
+			if (e instanceof  EOFException){ fittestList = new ArrayList<Genome>();}
+			else{e.printStackTrace();}
+		}
+		return fittestList;
+	}
+	
 	protected void initAlgorithm (NeuralNetwork network, int populationSize, 
 			double minWeight,double maxWeight,String...parms){
 		Evolve evole =   new Evolve (network, populationSize ,minWeight,maxWeight,parms){
@@ -72,6 +118,7 @@ public class AgentEvolver2 extends AgentEvolver {
 			@Override
 			public void preEvolutionActions (){
 				generationLog();
+				saveFittest(180.0);
 			}
 		};
 		this.setAlgorithm(evole);

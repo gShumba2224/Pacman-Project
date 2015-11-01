@@ -37,6 +37,7 @@ public class Move  {
 	public static int moveAgent(GenericAgent agent, Game game, IntDimension location ) {
 		Grid grid = game.getGrid();
 		int result = Move.GOT_NONE_PILL;
+
 		if (agent.isDead() == true){return result;}
 		try{
 			Road road = (Road)grid.getBlock(location);
@@ -66,7 +67,7 @@ public class Move  {
 				} else if (road.getOccupiedBy() instanceof Pacman && agent.isScared() == true){
 					result = Move.GOT_KILLED;
 				} else if (road.getOccupiedBy() instanceof Ghost){
-					result = Move.HITWALL;
+					//result = Move.HITWALL;
 				}
 			}
 			update(game, road, agent, result);

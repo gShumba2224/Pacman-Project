@@ -134,7 +134,7 @@ public class InputReader extends NeuralNetworkReader {
 				}else {distance = distance/100;}
 				neurons.get(i).setOutputValue(distance);
 			}else{
-				neurons.get(i).setOutputValue(-1);
+				neurons.get(i).setOutputValue(-100);
 			}
 			index++;
 		}
