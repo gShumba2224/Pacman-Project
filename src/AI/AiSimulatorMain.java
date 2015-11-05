@@ -91,14 +91,20 @@ public class AiSimulatorMain  extends Application {
 		AgentEvolver2 e = new AgentEvolver2(game,net1, 40, GenericAgent.PACMAN,-1,1);
 		AgentEvolver e2 = new AgentEvolver(game,net2, 200, GenericAgent.GHOST,0,1);
 		
+//		Random rand = new Random();
+//		int g =rand.nextInt(4);
+//		for (int i = 0; i < g; i++){
+//			NeuralLayer layer = net1.getHiddenLayers().get(0);
+//			Neuron neuron = layer.getNeurons().get(rand.nextInt(layer.getNeurons().size()));
+//			neuron.setOutputValue(0);
+//		}
 		e.getAlgorithm().setMutationRate(0.08);
 		e2.getAlgorithm().setMutationRate(0.05);
 		pacSim = new AiSimulator(game, net1, e.getAlgorithm(), net2, e2.getAlgorithm());
 		pacSim.setGhostSimulationProperties(0,2, 100, 0.5);
 		pacSim.setPacSimulationProperties(7,0, 100, 1);
 		pacSim.setSimulationProperties(5000, 100,35);
-		pacSim.useDefaultGenomes = true;
-		pacSim.startThread("Pacman Simulation");	
+		pacSim.startThread("Pacman Simulation",true);	
 	}
 	
 	

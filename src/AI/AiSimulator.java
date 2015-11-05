@@ -72,7 +72,8 @@ public class AiSimulator implements Runnable{
 		generateStartPositions();
 	}
 	
-	public void startThread(String threadName){
+	public void startThread(String threadName, boolean useDefaultGenomes){
+		this.useDefaultGenomes = useDefaultGenomes;
 		new Thread (this, threadName).start();;
 	}
 	
